@@ -24,12 +24,15 @@ class AuthServiceTest {
     @Mock
     private UsuarioRepository usuarioRepository;
 
+    @Mock
+    private TokenService tokenService;
+
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private AuthService authService;
 
     @BeforeEach
     void crearServicio() {
-        authService = new AuthService(usuarioRepository, passwordEncoder);
+                   authService = new AuthService(usuarioRepository, passwordEncoder, tokenService);
     }
 
     private RegistroRequest solicitud(Rol rol, String institucion) {
