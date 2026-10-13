@@ -11,6 +11,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import cl.duoc.santiago_sacro_api.auth.CredencialesInvalidasException;
+import cl.duoc.santiago_sacro_api.auth.CuentaBloqueadaException;
+import cl.duoc.santiago_sacro_api.auth.CuentaDeshabilitadaException;
+import org.springframework.security.access.AccessDeniedException;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -54,6 +59,32 @@ public class ManejadorErrores extends ResponseEntityExceptionHandler {
         ProblemDetail problema = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT,
                 "Los datos entran en conflicto con un registro existente.");
         problema.setTitle("Conflicto de datos");
+        return problema;
+    }
+        // 401: correo o contraseña incorrectos.
+    @ExceptionHandler(CredencialesInvalidasException.class)
+    public ProblemDetail credencialesInvalidas(CredencialesInvalidasException ex) {
+        ProblemDetail problema = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, ex.getMessage());
+        problema.setTitle("Credenciales inválidas");
+        return problema;
+    }
+
+    // 423: cuenta bloqueada temporalmente por intentos fallidos.
+    @ExceptionHandler(CuentaBloqueadaException.class)
+    public ProblemDetail cuentaBloqueada(CuentaBloqueadaException ex) {
+        ProblemDetail problema = ProblemDetail.forStatusAndDetail(HttpStatus.LOCKED, ex.getMessage());
+        problema.setTitle("Cuenta bloqueada");
+        return problema;
+    }
+
+    // 403: cuenta deshabilitada, o rol sin permiso dentro de un controlador.
+    @ExceptionHandler({CuentaDeshabilitadaException.class, AccessDeniedException.class})
+    public ProblemDetail prohibido(RuntimeException ex) {
+        String detalle = ex instanceof CuentaDeshabilitadaException
+                ? ex.getMessage()
+                : "Tu rol no tiene permiso para esta acción.";
+        ProblemDetail problema = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, detalle);
+        problema.setTitle("Acceso denegado");
         return problema;
     }
 

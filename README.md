@@ -16,6 +16,7 @@ DSY1105 Desarrollo de Aplicaciones Móviles · Duoc UC.
 
 ## Cómo ejecutar el backend
 
+0. Copiar `backend/.env.example` como `backend/.env` y poner una clave en `JWT_SECRET`.
 1. Tener JDK 21 y WAMP con MySQL 8.4 encendido en el puerto 3306.
 2. En la carpeta `backend/` ejecutar:
 ```
