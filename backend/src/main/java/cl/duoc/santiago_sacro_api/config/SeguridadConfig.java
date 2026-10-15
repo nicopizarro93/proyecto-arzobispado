@@ -32,6 +32,8 @@ public class SeguridadConfig {
                 .authorizeHttpRequests(reglas -> reglas
                         // Públicos: registro, login y consulta de recintos, eventos y comunas.
                         .requestMatchers(HttpMethod.POST, "/api/auth/registro", "/api/auth/login","/api/rutas/estimar").permitAll()
+                        // Rutas propias: siempre con sesión. Va antes de la regla pública de rutas.
+                        .requestMatchers("/api/rutas/mias/**").authenticated()                        
                         .requestMatchers(HttpMethod.GET, "/api/recintos", "/api/recintos/**",
                             "/api/eventos", "/api/eventos/**","/api/comunas",
                             "/api/rutas", "/api/rutas/**").permitAll()                      
