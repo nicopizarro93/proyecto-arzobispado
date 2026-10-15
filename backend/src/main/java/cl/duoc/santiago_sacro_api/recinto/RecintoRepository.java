@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +28,10 @@ public interface RecintoRepository extends JpaRepository<Recinto, Long> {
 
     @Query("select r from Recinto r join fetch r.comuna where r.id = :id and r.activo = true")
     Optional<Recinto> buscarActivoPorId(@Param("id") Long id);
+    
+    // Varios recintos activos de una vez (para las paradas de una ruta).
+    List<Recinto> findByIdInAndActivoTrue(Collection<Long> ids);
+
 }
 
 /*
