@@ -11,7 +11,9 @@ import cl.duoc.santiago_sacro_api.usuario.UsuarioRepository;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import cl.duoc.santiago_sacro_api.horario.HorarioService;
+import cl.duoc.santiago_sacro_api.horario.dto.HorarioDto;
+import cl.duoc.santiago_sacro_api.horario.dto.HorarioRequest;
 import java.time.LocalDateTime;
 
 @Service
@@ -19,10 +21,13 @@ public class EncargadoService {
 
     private final UsuarioRepository usuarioRepository;
     private final RecintoService recintoService;
+    private final HorarioService horarioService;
 
-    public EncargadoService(UsuarioRepository usuarioRepository, RecintoService recintoService) {
+    public EncargadoService(UsuarioRepository usuarioRepository, RecintoService recintoService,
+                            HorarioService horarioService) {
         this.usuarioRepository = usuarioRepository;
         this.recintoService = recintoService;
+        this.horarioService = horarioService;
     }
 
     // Ficha del recinto asignado, con su estado y sus horarios.
@@ -38,6 +43,22 @@ public class EncargadoService {
         recinto.setEstadoApertura(estado);
         recinto.setFechaEstado(LocalDateTime.now());
         return recintoService.obtener(recinto.getId());
+    }
+
+        // Horarios del recinto asignado (HU-27).
+    @Transactional
+    public HorarioDto agregarHorario(Long idUsuario, HorarioRequest datos) {
+        return horarioService.crear(recintoAsignado(idUsuario), datos);
+    }
+
+    @Transactional
+    public HorarioDto editarHorario(Long idUsuario, Long idHorario, HorarioRequest datos) {
+        return horarioService.actualizar(recintoAsignado(idUsuario), idHorario, datos);
+    }
+
+    @Transactional
+    public void eliminarHorario(Long idUsuario, Long idHorario) {
+        horarioService.eliminar(recintoAsignado(idUsuario), idHorario);
     }
 
     // El recinto sale de la cuenta del token, nunca de la URL:
