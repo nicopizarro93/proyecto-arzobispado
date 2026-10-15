@@ -8,7 +8,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-
+import cl.duoc.santiago_sacro_api.evento.Evento;
+import cl.duoc.santiago_sacro_api.evento.EventoService;
+import cl.duoc.santiago_sacro_api.evento.dto.EventoResumenDto;
+import cl.duoc.santiago_sacro_api.evento.dto.ExcepcionHorarioDto;
 import java.util.List;
 
 @Service
@@ -16,10 +19,13 @@ public class RecintoService {
 
     private final RecintoRepository recintoRepository;
     private final HorarioRegularRepository horarioRepository;
+    private final EventoService eventoService;
 
-    public RecintoService(RecintoRepository recintoRepository, HorarioRegularRepository horarioRepository) {
+    public RecintoService(RecintoRepository recintoRepository, HorarioRegularRepository horarioRepository,
+                          EventoService eventoService) {
         this.recintoRepository = recintoRepository;
         this.horarioRepository = horarioRepository;
+        this.eventoService = eventoService;
     }
 
     @Transactional(readOnly = true)
@@ -38,6 +44,16 @@ public class RecintoService {
         List<HorarioDto> horarios = horarioRepository.findByRecintoIdOrderByDiaSemanaAscHoraAperturaAsc(id).stream()
                 .map(HorarioDto::desde)
                 .toList();
-        return RecintoDetalleDto.desde(recinto, horarios);
+        // Una sola consulta de eventos vigentes: se separan las aperturas y cierres del resto.
+        List<Evento> vigentes = eventoService.vigentesDelRecinto(id);
+        List<ExcepcionHorarioDto> excepciones = vigentes.stream()
+                .filter(e -> e.getTipo().esExcepcionDeHorario())
+                .map(ExcepcionHorarioDto::desde)
+                .toList();
+        List<EventoResumenDto> proximosEventos = vigentes.stream()
+                .filter(e -> !e.getTipo().esExcepcionDeHorario())
+                .map(EventoResumenDto::desde)
+                .toList();
+        return RecintoDetalleDto.desde(recinto, horarios, excepciones, proximosEventos);
     }
 }
