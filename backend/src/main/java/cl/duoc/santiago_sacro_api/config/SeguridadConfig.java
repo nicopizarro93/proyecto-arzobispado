@@ -30,9 +30,9 @@ public class SeguridadConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(sesion -> sesion.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(reglas -> reglas
-                        // Públicos: registro, login y consulta de recintos y eventos.
+                        // Públicos: registro, login y consulta de recintos, eventos y comunas.
                         .requestMatchers(HttpMethod.POST, "/api/auth/registro", "/api/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/recintos", "/api/recintos/**","/api/eventos", "/api/eventos/**").permitAll()                      
+                        .requestMatchers(HttpMethod.GET, "/api/recintos", "/api/recintos/**","/api/eventos", "/api/eventos/**","/api/comunas").permitAll()                      
                         .requestMatchers("/error").permitAll()
                         // Solo encargados: gestión de su propio recinto.
                         .requestMatchers("/api/encargado/**").hasRole("ENCARGADO")                        

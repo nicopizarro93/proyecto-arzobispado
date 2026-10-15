@@ -13,6 +13,8 @@ import cl.duoc.santiago_sacro_api.evento.EventoService;
 import cl.duoc.santiago_sacro_api.evento.dto.EventoResumenDto;
 import cl.duoc.santiago_sacro_api.evento.dto.ExcepcionHorarioDto;
 import java.util.List;
+import cl.duoc.santiago_sacro_api.multimedia.RecursoMultimediaRepository;
+import cl.duoc.santiago_sacro_api.multimedia.dto.RecursoMultimediaDto;
 
 @Service
 public class RecintoService {
@@ -20,12 +22,14 @@ public class RecintoService {
     private final RecintoRepository recintoRepository;
     private final HorarioRegularRepository horarioRepository;
     private final EventoService eventoService;
+    private final RecursoMultimediaRepository multimediaRepository;
 
     public RecintoService(RecintoRepository recintoRepository, HorarioRegularRepository horarioRepository,
-                          EventoService eventoService) {
+                          EventoService eventoService, RecursoMultimediaRepository multimediaRepository) {
         this.recintoRepository = recintoRepository;
         this.horarioRepository = horarioRepository;
         this.eventoService = eventoService;
+        this.multimediaRepository = multimediaRepository;
     }
 
     @Transactional(readOnly = true)
@@ -41,6 +45,9 @@ public class RecintoService {
         Recinto recinto = recintoRepository.buscarActivoPorId(id)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "No existe un recinto activo con id " + id));
+        List<RecursoMultimediaDto> galeria = multimediaRepository.findByRecintoIdOrderByOrdenAsc(id).stream()
+                .map(RecursoMultimediaDto::desde)
+                .toList();                        
         List<HorarioDto> horarios = horarioRepository.findByRecintoIdOrderByDiaSemanaAscHoraAperturaAsc(id).stream()
                 .map(HorarioDto::desde)
                 .toList();
@@ -54,6 +61,6 @@ public class RecintoService {
                 .filter(e -> !e.getTipo().esExcepcionDeHorario())
                 .map(EventoResumenDto::desde)
                 .toList();
-        return RecintoDetalleDto.desde(recinto, horarios, excepciones, proximosEventos);
+                return RecintoDetalleDto.desde(recinto, galeria, horarios, excepciones, proximosEventos);
     }
 }
