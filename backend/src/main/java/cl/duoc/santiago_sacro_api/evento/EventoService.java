@@ -32,6 +32,13 @@ public class EventoService {
                 .toList();
     }
 
+    // Eventos vigentes de un recinto, incluidas aperturas y cierres (los usa la ficha).
+    @Transactional(readOnly = true)
+    public List<Evento> vigentesDelRecinto(Long idRecinto) {
+        LocalDateTime ahora = LocalDateTime.now();
+        return eventoRepository.buscarVigentes(ahora, ahora.minusHours(HORAS_SIN_FIN), null, idRecinto);
+    }
+
     @Transactional(readOnly = true)
     public EventoDetalleDto obtener(Long id) {
         return eventoRepository.buscarPublicadoPorId(id)
