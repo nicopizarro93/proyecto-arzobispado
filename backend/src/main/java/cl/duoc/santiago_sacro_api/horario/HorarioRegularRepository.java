@@ -10,7 +10,7 @@ public interface HorarioRegularRepository extends JpaRepository<HorarioRegular, 
     // Bloques de un recinto, ordenados por día y hora de apertura.
     List<HorarioRegular> findByRecintoIdOrderByDiaSemanaAscHoraAperturaAsc(Long idRecinto);
 
-        // Un bloque solo si pertenece a ese recinto.
+    // Un bloque solo si pertenece a ese recinto.
     Optional<HorarioRegular> findByIdAndRecintoId(Long id, Long idRecinto);
 
     // Bloques de un día, para revisar traslapes.

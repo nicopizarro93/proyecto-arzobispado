@@ -33,7 +33,7 @@ public class EncargadoController {
         return encargadoService.cambiarEstado(idUsuario(jwt), solicitud.estado());
     }
 
-        // POST /api/encargado/recinto/horarios → 201 con el bloque creado
+    // POST /api/encargado/recinto/horarios → 201 con el bloque creado
     @PostMapping("/horarios")
     @ResponseStatus(HttpStatus.CREATED)
     public HorarioDto agregarHorario(@AuthenticationPrincipal Jwt jwt,

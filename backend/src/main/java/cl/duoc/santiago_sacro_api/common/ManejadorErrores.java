@@ -64,15 +64,15 @@ public class ManejadorErrores extends ResponseEntityExceptionHandler {
         return problema;
     }
 
-        // 409: el bloque se cruza con otro horario del mismo día.
+    // 409: el bloque se cruza con otro horario del mismo día.
     @ExceptionHandler(HorarioTraslapadoException.class)
     public ProblemDetail horarioTraslapado(HorarioTraslapadoException ex) {
         ProblemDetail problema = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
         problema.setTitle("Horario traslapado");
         return problema;
     }
-    
-        // 401: correo o contraseña incorrectos.
+
+    // 401: correo o contraseña incorrectos.
     @ExceptionHandler(CredencialesInvalidasException.class)
     public ProblemDetail credencialesInvalidas(CredencialesInvalidasException ex) {
         ProblemDetail problema = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, ex.getMessage());

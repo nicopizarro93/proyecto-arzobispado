@@ -45,7 +45,7 @@ public class EncargadoService {
         return recintoService.obtener(recinto.getId());
     }
 
-        // Horarios del recinto asignado (HU-27).
+    // Horarios del recinto asignado (HU-27).
     @Transactional
     public HorarioDto agregarHorario(Long idUsuario, HorarioRequest datos) {
         return horarioService.crear(recintoAsignado(idUsuario), datos);
