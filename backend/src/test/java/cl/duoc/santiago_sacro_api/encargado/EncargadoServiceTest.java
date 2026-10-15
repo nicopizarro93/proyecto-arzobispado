@@ -19,7 +19,8 @@ import cl.duoc.santiago_sacro_api.evento.EventoService;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Optional;
-
+import cl.duoc.santiago_sacro_api.evento.TipoEvento;
+import cl.duoc.santiago_sacro_api.evento.dto.EventoRequest;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -100,4 +101,17 @@ class EncargadoServiceTest {
 
         verify(horarioService).crear(capilla, datos);
     }
+
+    @Test
+    void publicarEventoUsaElRecintoYLaCuentaDelToken() {
+        Usuario encargado = cuenta(Rol.ENCARGADO, true);
+        when(usuarioRepository.findById(ID_USUARIO)).thenReturn(Optional.of(encargado));
+        when(usuarioRepository.getReferenceById(ID_USUARIO)).thenReturn(encargado);
+        EventoRequest datos = new EventoRequest(TipoEvento.AVISO, "Aviso", null,
+                LocalDateTime.of(2026, 11, 5, 9, 0), null);
+
+        encargadoService.publicarEvento(ID_USUARIO, datos);
+
+        verify(eventoService).publicar(capilla, encargado, datos);
+    }    
 }
