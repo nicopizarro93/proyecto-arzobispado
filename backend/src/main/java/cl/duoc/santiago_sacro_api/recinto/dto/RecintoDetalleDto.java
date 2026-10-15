@@ -1,13 +1,15 @@
 package cl.duoc.santiago_sacro_api.recinto.dto;
 
+import cl.duoc.santiago_sacro_api.horario.dto.HorarioDto;
 import cl.duoc.santiago_sacro_api.recinto.EstadoApertura;
 import cl.duoc.santiago_sacro_api.recinto.Recinto;
 import cl.duoc.santiago_sacro_api.recinto.TipoRecinto;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
-/** Datos de la ficha de un recinto (por ahora sin horarios, galería ni eventos). */
+/** Datos de la ficha de un recinto (por ahora sin galería ni eventos). */
 public record RecintoDetalleDto(
         Long id,
         String nombre,
@@ -18,12 +20,13 @@ public record RecintoDetalleDto(
         BigDecimal longitud,
         String descripcionHistorica,
         EstadoApertura estado,
-        LocalDateTime fechaEstado) {
+        LocalDateTime fechaEstado,
+        List<HorarioDto> horarios) {
 
-    public static RecintoDetalleDto desde(Recinto r) {
+    public static RecintoDetalleDto desde(Recinto r, List<HorarioDto> horarios) {
         return new RecintoDetalleDto(
                 r.getId(), r.getNombreOficial(), r.getTipoRecinto(), r.getComuna().getNombre(),
                 r.direccionCompleta(), r.getLatitud(), r.getLongitud(), r.getDescripcionHistorica(),
-                r.getEstadoApertura(), r.getFechaEstado());
+                r.getEstadoApertura(), r.getFechaEstado(), horarios);
     }
 }
