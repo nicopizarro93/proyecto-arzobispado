@@ -15,6 +15,11 @@ import cl.duoc.santiago_sacro_api.horario.HorarioService;
 import cl.duoc.santiago_sacro_api.horario.dto.HorarioDto;
 import cl.duoc.santiago_sacro_api.horario.dto.HorarioRequest;
 import java.time.LocalDateTime;
+import cl.duoc.santiago_sacro_api.evento.EventoService;
+import cl.duoc.santiago_sacro_api.evento.dto.EventoGestionDto;
+import cl.duoc.santiago_sacro_api.evento.dto.EventoRequest;
+
+import java.util.List;
 
 @Service
 public class EncargadoService {
@@ -22,12 +27,14 @@ public class EncargadoService {
     private final UsuarioRepository usuarioRepository;
     private final RecintoService recintoService;
     private final HorarioService horarioService;
+    private final EventoService eventoService;
 
     public EncargadoService(UsuarioRepository usuarioRepository, RecintoService recintoService,
-                            HorarioService horarioService) {
+                            HorarioService horarioService, EventoService eventoService) {
         this.usuarioRepository = usuarioRepository;
         this.recintoService = recintoService;
         this.horarioService = horarioService;
+        this.eventoService = eventoService;
     }
 
     // Ficha del recinto asignado, con su estado y sus horarios.
@@ -60,6 +67,30 @@ public class EncargadoService {
     public void eliminarHorario(Long idUsuario, Long idHorario) {
         horarioService.eliminar(recintoAsignado(idUsuario), idHorario);
     }
+
+    // Eventos, avisos, aperturas y cierres del recinto asignado (HU-28 a HU-30).
+    @Transactional(readOnly = true)
+    public List<EventoGestionDto> historialEventos(Long idUsuario) {
+        return eventoService.historialDelRecinto(recintoAsignado(idUsuario).getId());
+    }
+
+    @Transactional
+    public EventoGestionDto publicarEvento(Long idUsuario, EventoRequest datos) {
+        Recinto recinto = recintoAsignado(idUsuario);
+        // La cuenta ya se validó en recintoAsignado; aquí solo se toma su referencia para "publicado por".
+        Usuario encargado = usuarioRepository.getReferenceById(idUsuario);
+        return eventoService.publicar(recinto, encargado, datos);
+    }
+
+    @Transactional
+    public EventoGestionDto editarEvento(Long idUsuario, Long idEvento, EventoRequest datos) {
+        return eventoService.editar(recintoAsignado(idUsuario), idEvento, datos);
+    }
+
+    @Transactional
+    public EventoGestionDto cancelarEvento(Long idUsuario, Long idEvento) {
+        return eventoService.cancelar(recintoAsignado(idUsuario), idEvento);
+    }    
 
     // El recinto sale de la cuenta del token, nunca de la URL:
     // así un encargado no puede modificar un recinto ajeno (HU-03).

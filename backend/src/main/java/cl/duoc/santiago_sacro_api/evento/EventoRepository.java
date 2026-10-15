@@ -37,4 +37,10 @@ public interface EventoRepository extends JpaRepository<Evento, Long> {
               and r.activo = true
             """)
     Optional<Evento> buscarPublicadoPorId(@Param("id") Long id);
+
+    // Historial del encargado: todos los eventos de su recinto, también cancelados y pasados.
+    List<Evento> findByRecintoIdOrderByInicioDesc(Long idRecinto);
+
+    // Un evento solo si pertenece a ese recinto.
+    Optional<Evento> findByIdAndRecintoId(Long id, Long idRecinto);
 }

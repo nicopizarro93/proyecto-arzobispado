@@ -15,7 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.access.AccessDeniedException;
-
+import cl.duoc.santiago_sacro_api.evento.EventoService;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Optional;
@@ -38,12 +38,15 @@ class EncargadoServiceTest {
     @Mock
     private HorarioService horarioService;
 
+    @Mock
+    private EventoService eventoService;
+
     private EncargadoService encargadoService;
     private Recinto capilla;
 
     @BeforeEach
     void preparar() {
-        encargadoService = new EncargadoService(usuarioRepository, recintoService, horarioService);
+        encargadoService = new EncargadoService(usuarioRepository, recintoService, horarioService, eventoService);
         capilla = new Recinto();
         capilla.setId(1L);
         capilla.setEstadoApertura(EstadoApertura.CERRADO);

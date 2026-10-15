@@ -9,6 +9,10 @@ import org.springframework.web.bind.annotation.*;
 import cl.duoc.santiago_sacro_api.horario.dto.HorarioDto;
 import cl.duoc.santiago_sacro_api.horario.dto.HorarioRequest;
 import org.springframework.http.HttpStatus;
+import cl.duoc.santiago_sacro_api.evento.dto.EventoGestionDto;
+import cl.duoc.santiago_sacro_api.evento.dto.EventoRequest;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/encargado/recinto")
@@ -56,6 +60,35 @@ public class EncargadoController {
                                 @PathVariable("idHorario") Long idHorario) {
         encargadoService.eliminarHorario(idUsuario(jwt), idHorario);
     }
+
+    // GET /api/encargado/recinto/eventos → historial, incluidos los cancelados
+    @GetMapping("/eventos")
+    public List<EventoGestionDto> historialEventos(@AuthenticationPrincipal Jwt jwt) {
+        return encargadoService.historialEventos(idUsuario(jwt));
+    }
+
+    // POST /api/encargado/recinto/eventos → 201 con el evento publicado
+    @PostMapping("/eventos")
+    @ResponseStatus(HttpStatus.CREATED)
+    public EventoGestionDto publicarEvento(@AuthenticationPrincipal Jwt jwt,
+                                           @Valid @RequestBody EventoRequest solicitud) {
+        return encargadoService.publicarEvento(idUsuario(jwt), solicitud);
+    }
+
+    // PUT /api/encargado/recinto/eventos/12 → 200 con el evento modificado
+    @PutMapping("/eventos/{idEvento}")
+    public EventoGestionDto editarEvento(@AuthenticationPrincipal Jwt jwt,
+                                         @PathVariable("idEvento") Long idEvento,
+                                         @Valid @RequestBody EventoRequest solicitud) {
+        return encargadoService.editarEvento(idUsuario(jwt), idEvento, solicitud);
+    }
+
+    // PATCH /api/encargado/recinto/eventos/12/cancelar → 200 con el estado CANCELADO
+    @PatchMapping("/eventos/{idEvento}/cancelar")
+    public EventoGestionDto cancelarEvento(@AuthenticationPrincipal Jwt jwt,
+                                           @PathVariable("idEvento") Long idEvento) {
+        return encargadoService.cancelarEvento(idUsuario(jwt), idEvento);
+    }    
 
     // El "sub" del token es el id del usuario (lo pone TokenService al iniciar sesión).
     private Long idUsuario(Jwt jwt) {
