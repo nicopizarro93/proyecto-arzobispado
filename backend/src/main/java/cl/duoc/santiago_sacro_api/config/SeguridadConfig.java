@@ -39,7 +39,9 @@ public class SeguridadConfig {
                             "/api/rutas", "/api/rutas/**").permitAll()                      
                         .requestMatchers("/error").permitAll()
                         // Solo encargados: gestión de su propio recinto.
-                        .requestMatchers("/api/encargado/**").hasRole("ENCARGADO")                        
+                        .requestMatchers("/api/encargado/**").hasRole("ENCARGADO") 
+                        // Solo visitantes y docentes agendan y gestionan visitas.
+                        .requestMatchers("/api/visitas/**").hasAnyRole("VISITANTE", "DOCENTE")                                               
                         // Todo lo demás exige un token válido.
                         .anyRequest().authenticated())
                 // Lee el token "Authorization: Bearer ..." y lo verifica con el JwtDecoder.
