@@ -2,7 +2,12 @@ package cl.duoc.santiago_sacro_api.ruta;
 
 import cl.duoc.santiago_sacro_api.ruta.dto.EstimacionDto;
 import cl.duoc.santiago_sacro_api.ruta.dto.EstimacionRequest;
+import cl.duoc.santiago_sacro_api.ruta.dto.RutaDetalleDto;
+import cl.duoc.santiago_sacro_api.ruta.dto.RutaResumenDto;
 import jakarta.validation.Valid;
+
+import java.util.List;
+
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,4 +25,16 @@ public class RutaController {
     public EstimacionDto estimar(@Valid @RequestBody EstimacionRequest solicitud) {
         return rutaService.estimar(solicitud);
     }
+
+    // GET /api/rutas → rutas sugeridas activas (HU-17)
+    @GetMapping
+    public List<RutaResumenDto> sugeridas() {
+        return rutaService.sugeridas();
+    }
+
+    // GET /api/rutas/1 → detalle de una ruta sugerida con sus paradas y tramos
+    @GetMapping("/{id}")
+    public RutaDetalleDto sugerida(@PathVariable("id") Long id) {
+        return rutaService.sugerida(id);
+    }    
 }
