@@ -1,5 +1,9 @@
 package cl.duoc.santiago_sacro_api.ruta.dto;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -15,4 +19,17 @@ public record ParadaRequest(
     public ParadaRequest {
         tiempoVisitaMin = tiempoVisitaMin == null ? MINUTOS_POR_DEFECTO : tiempoVisitaMin;
     }
+
+    /** HU-18: una ruta no repite recintos. Lo usan la estimación y las rutas guardadas. */
+    public static boolean sinRecintosRepetidos(List<ParadaRequest> paradas) {
+        if (paradas == null) {
+            return true;
+        }
+        List<Long> ids = paradas.stream()
+                .filter(Objects::nonNull)
+                .map(ParadaRequest::idRecinto)
+                .filter(Objects::nonNull)
+                .toList();
+        return ids.size() == new HashSet<>(ids).size();
+    }    
 }

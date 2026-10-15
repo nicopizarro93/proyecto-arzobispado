@@ -15,18 +15,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import cl.duoc.santiago_sacro_api.ruta.dto.RutaRequest;
+import cl.duoc.santiago_sacro_api.usuario.UsuarioRepository;
 
 @Service
 public class RutaService {
 
     private final RutaRepository rutaRepository;
     private final RecintoRepository recintoRepository;
+    private final UsuarioRepository usuarioRepository;
     private final CalculadoraTiempos calculadora;
 
     public RutaService(RutaRepository rutaRepository, RecintoRepository recintoRepository,
-                       CalculadoraTiempos calculadora) {
+                       UsuarioRepository usuarioRepository, CalculadoraTiempos calculadora) {
         this.rutaRepository = rutaRepository;
         this.recintoRepository = recintoRepository;
+        this.usuarioRepository = usuarioRepository;
         this.calculadora = calculadora;
     }
 
@@ -55,6 +59,63 @@ public class RutaService {
                         "No existe una ruta sugerida activa con id " + id));
         return RutaDetalleDto.desde(ruta, estimacionDe(ruta));
     }
+
+    // ---- Mis rutas (HU-18): solo las del usuario del token ----
+
+    @Transactional(readOnly = true)
+    public List<RutaResumenDto> misRutas(Long idUsuario) {
+        return rutaRepository.buscarPersonalesActivas(idUsuario).stream()
+                .map(r -> RutaResumenDto.desde(r, estimacionDe(r)))
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public RutaDetalleDto miRuta(Long idUsuario, Long idRuta) {
+        Ruta ruta = buscarMia(idUsuario, idRuta);
+        return RutaDetalleDto.desde(ruta, estimacionDe(ruta));
+    }
+
+    @Transactional
+    public RutaDetalleDto crear(Long idUsuario, RutaRequest datos) {
+        Ruta ruta = new Ruta();
+        ruta.setCreador(usuarioRepository.getReferenceById(idUsuario));
+        ruta.setTipo(TipoRuta.PERSONALIZADA);
+        copiar(datos, ruta);
+        Ruta guardada = rutaRepository.save(ruta);
+        return RutaDetalleDto.desde(guardada, estimacionDe(guardada));
+    }
+
+    @Transactional
+    public RutaDetalleDto actualizar(Long idUsuario, Long idRuta, RutaRequest datos) {
+        Ruta ruta = buscarMia(idUsuario, idRuta);
+        // Primero se borran en la base las paradas antiguas (flush) y después se agregan las nuevas.
+        // Si se hiciera todo junto, MySQL vería dos paradas con el mismo orden en la misma ruta.
+        ruta.getParadas().clear();
+        rutaRepository.flush();
+        copiar(datos, ruta);
+        return RutaDetalleDto.desde(ruta, estimacionDe(ruta));
+    }
+
+    // Borrado lógico: la ruta queda desactivada, no se elimina.
+    @Transactional
+    public void eliminar(Long idUsuario, Long idRuta) {
+        buscarMia(idUsuario, idRuta).setActivo(false);
+    }
+
+    // Una ruta de otro usuario responde 404, igual que una que no existe.
+    private Ruta buscarMia(Long idUsuario, Long idRuta) {
+        return rutaRepository.buscarPersonalActiva(idRuta, idUsuario)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "No tienes una ruta con id " + idRuta));
+    }
+
+    private void copiar(RutaRequest datos, Ruta ruta) {
+        ruta.setNombre(datos.nombre());
+        ruta.setDescripcion(datos.descripcion());
+        ruta.setModoTraslado(datos.modo());
+        Map<Long, Recinto> recintos = recintosActivos(datos.paradas());
+        datos.paradas().forEach(p -> ruta.agregarParada(recintos.get(p.idRecinto()), p.tiempoVisitaMin()));
+    }    
 
     // Tiempo estimado de una ruta guardada, con sus paradas en orden.
     private EstimacionDto estimacionDe(Ruta ruta) {
