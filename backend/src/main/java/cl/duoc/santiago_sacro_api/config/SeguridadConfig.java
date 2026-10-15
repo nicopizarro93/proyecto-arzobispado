@@ -34,6 +34,8 @@ public class SeguridadConfig {
                         .requestMatchers(HttpMethod.POST, "/api/auth/registro", "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/recintos", "/api/recintos/**").permitAll()
                         .requestMatchers("/error").permitAll()
+                        // Solo encargados: gestión de su propio recinto.
+                        .requestMatchers("/api/encargado/**").hasRole("ENCARGADO")                        
                         // Todo lo demás exige un token válido.
                         .anyRequest().authenticated())
                 // Lee el token "Authorization: Bearer ..." y lo verifica con el JwtDecoder.

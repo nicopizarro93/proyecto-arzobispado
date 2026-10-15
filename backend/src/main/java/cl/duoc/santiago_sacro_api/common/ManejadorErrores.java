@@ -14,6 +14,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import cl.duoc.santiago_sacro_api.auth.CredencialesInvalidasException;
 import cl.duoc.santiago_sacro_api.auth.CuentaBloqueadaException;
 import cl.duoc.santiago_sacro_api.auth.CuentaDeshabilitadaException;
+import cl.duoc.santiago_sacro_api.horario.HorarioTraslapadoException;
+
 import org.springframework.security.access.AccessDeniedException;
 
 import java.util.LinkedHashMap;
@@ -61,7 +63,16 @@ public class ManejadorErrores extends ResponseEntityExceptionHandler {
         problema.setTitle("Conflicto de datos");
         return problema;
     }
-        // 401: correo o contraseña incorrectos.
+
+    // 409: el bloque se cruza con otro horario del mismo día.
+    @ExceptionHandler(HorarioTraslapadoException.class)
+    public ProblemDetail horarioTraslapado(HorarioTraslapadoException ex) {
+        ProblemDetail problema = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        problema.setTitle("Horario traslapado");
+        return problema;
+    }
+
+    // 401: correo o contraseña incorrectos.
     @ExceptionHandler(CredencialesInvalidasException.class)
     public ProblemDetail credencialesInvalidas(CredencialesInvalidasException ex) {
         ProblemDetail problema = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, ex.getMessage());

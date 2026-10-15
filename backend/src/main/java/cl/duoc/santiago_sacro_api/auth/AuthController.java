@@ -7,8 +7,6 @@ import cl.duoc.santiago_sacro_api.usuario.dto.UsuarioDto;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import cl.duoc.santiago_sacro_api.auth.dto.LoginRequest;
-import cl.duoc.santiago_sacro_api.auth.dto.LoginResponse;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -27,7 +25,7 @@ public class AuthController {
         return authService.registrar(solicitud);
     }
 
-        // POST /api/auth/login → 200 con el token
+    // POST /api/auth/login → 200 con el token
     @PostMapping("/login")
     public LoginResponse login(@Valid @RequestBody LoginRequest solicitud) {
         return authService.login(solicitud);
