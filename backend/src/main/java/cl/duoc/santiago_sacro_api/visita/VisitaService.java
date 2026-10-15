@@ -14,6 +14,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import cl.duoc.santiago_sacro_api.visita.dto.CambioVisitaRequest;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class VisitaService {
@@ -51,6 +55,43 @@ public class VisitaService {
         visita.setNivelCurso(datos.nivelCurso());
         visita.setObservaciones(datos.observaciones());
         return VisitaDto.desde(visitaRepository.save(visita));
+    }
+
+    // ---- Mis visitas (HU-25) ----
+
+    @Transactional(readOnly = true)
+    public List<VisitaDto> misVisitas(Long idUsuario) {
+        return visitaRepository.buscarDelUsuario(idUsuario).stream()
+                .map(VisitaDto::desde)
+                .toList();
+    }
+
+    @Transactional
+    public VisitaDto cambiar(Long idUsuario, Long idVisita, CambioVisitaRequest datos) {
+        Visita visita = buscarModificable(idUsuario, idVisita);
+        visita.setInicio(datos.inicio());
+        visita.setCantidadPersonas(datos.cantidadPersonas());
+        return VisitaDto.desde(visita);
+    }
+
+    // Al cancelar la visita se cancelan también sus solicitudes de guía.
+    @Transactional
+    public VisitaDto cancelar(Long idUsuario, Long idVisita) {
+        Visita visita = buscarModificable(idUsuario, idVisita);
+        visita.setEstado(EstadoVisita.CANCELADA);
+        visitaRepository.cancelarSolicitudesDeGuia(idVisita);
+        return VisitaDto.desde(visita);
+    }
+
+    // Solo se modifica una visita propia, agendada y que todavía no ocurre.
+    private Visita buscarModificable(Long idUsuario, Long idVisita) {
+        Visita visita = visitaRepository.buscarUnaDelUsuario(idVisita, idUsuario)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "No tienes una visita con id " + idVisita));
+        if (visita.getEstado() != EstadoVisita.AGENDADA || !visita.getInicio().isAfter(LocalDateTime.now())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "La visita ya se realizó o fue cancelada");
+        }
+        return visita;
     }
 
     // HU-22: en una salida pedagógica el docente indica el curso; un visitante no.
