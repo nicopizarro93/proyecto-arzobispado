@@ -32,9 +32,8 @@ public interface RecintoRepository extends JpaRepository<Recinto, Long> {
     // Varios recintos activos de una vez (para las paradas de una ruta).
     List<Recinto> findByIdInAndActivoTrue(Collection<Long> ids);
 
+    // HU-35: no puede haber dos recintos con el mismo nombre en la misma comuna.
+    boolean existsByNombreOficialAndComunaId(String nombreOficial, Long idComuna);    
+
 }
 
-/*
-join fetch trae la comuna en la misma consulta. Así evitamos una consulta extra por cada recinto, y el error de carga perezosa fuera de la transacción.
-La búsqueda por nombre no distingue mayúsculas ni tildes gracias a la intercalación de la base (utf8mb4_0900_ai_ci): “jose” encuentra “José”.
- */

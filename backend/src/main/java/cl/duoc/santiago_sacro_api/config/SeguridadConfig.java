@@ -41,7 +41,9 @@ public class SeguridadConfig {
                         // Solo encargados: gestión de su propio recinto.
                         .requestMatchers("/api/encargado/**").hasRole("ENCARGADO") 
                         // Solo visitantes y docentes agendan y gestionan visitas.
-                        .requestMatchers("/api/visitas/**").hasAnyRole("VISITANTE", "DOCENTE")                                               
+                        .requestMatchers("/api/visitas/**").hasAnyRole("VISITANTE", "DOCENTE")
+                        // Solo el administrador gestiona los recintos de la red.
+                        .requestMatchers("/api/admin/**").hasRole("ADMINISTRADOR")                                                                       
                         // Todo lo demás exige un token válido.
                         .anyRequest().authenticated())
                 // Lee el token "Authorization: Bearer ..." y lo verifica con el JwtDecoder.
