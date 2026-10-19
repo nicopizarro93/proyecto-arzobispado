@@ -1,57 +1,51 @@
 package cl.duoc.santiagosacro.ui.theme
 
-import android.app.Activity
-import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Color
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
-)
-
-private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
+private val SantiagoSacroColors = lightColorScheme(
+    primary = Terracota,
     onPrimary = Color.White,
+    primaryContainer = TerracotaClaro,
+    onPrimaryContainer = TerracotaOscuro,
+
+    secondary = Oro,
     onSecondary = Color.White,
+    secondaryContainer = OroClaro,
+    onSecondaryContainer = Oro,
+
+    tertiary = Verde,
     onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    tertiaryContainer = VerdeClaro,
+    onTertiaryContainer = Verde,
+
+    background = Fondo,
+    onBackground = TextoPrincipal,
+    surface = Superficie,
+    onSurface = TextoPrincipal,
+    surfaceVariant = SuperficieVariante,
+    onSurfaceVariant = TextoSecundario,
+
+    // Fondos que usan barras de navegación, tarjetas y diálogos
+    surfaceContainerLowest = Color.White,
+    surfaceContainerLow = Superficie,
+    surfaceContainer = Superficie,
+    surfaceContainerHigh = SuperficieVariante,
+    surfaceContainerHighest = SuperficieVariante,
+
+    outline = BordeFuerte,
+    outlineVariant = Borde,
+
+    error = RojoError,
+    onError = Color.White
 )
 
 @Composable
-fun SantiagoSacroTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
-    content: @Composable () -> Unit
-) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
-
+fun SantiagoSacroTheme(content: @Composable () -> Unit) {
     MaterialTheme(
-        colorScheme = colorScheme,
+        colorScheme = SantiagoSacroColors,
         typography = Typography,
         content = content
     )
