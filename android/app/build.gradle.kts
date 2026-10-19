@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -52,4 +53,13 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
+    // ViewModel en Compose y navegación entre pantallas
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.navigation.compose)
+    // Íconos de Material (mapa, eventos, rutas...)
+    implementation(libs.androidx.compose.material.icons.extended)
+    // Room: base de datos local. KSP genera el código de los DAO al compilar.
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
 }
