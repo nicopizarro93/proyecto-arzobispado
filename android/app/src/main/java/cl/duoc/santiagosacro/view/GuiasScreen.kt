@@ -96,7 +96,7 @@ fun GuiasScreen(
             if (guias.isEmpty()) {
                 item { TextoVacio("Este recinto todavía no tiene guías.") }
             }
-            items(guias, key = { it.id }) { guia ->
+            items(guias, key = { "guia-${it.id}" }) { guia ->
                 GuiaCard(
                     guia = guia,
                     activo = inactivos[guia.id] != true,
@@ -122,7 +122,7 @@ fun GuiasScreen(
             if (solicitudes.isEmpty()) {
                 item { TextoVacio("No hay solicitudes pendientes.") }
             }
-            items(solicitudes, key = { it.id }) { solicitud ->
+            items(solicitudes, key = { "solicitud-${it.id}" }) { solicitud ->
                 SolicitudCard(
                     solicitud = solicitud,
                     respuesta = respuestas[solicitud.id],
