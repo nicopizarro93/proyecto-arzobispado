@@ -94,9 +94,9 @@ fun AppNavigation() {
             composable(
                 route = Rutas.FICHA,
                 arguments = listOf(navArgument("recintoId") { type = NavType.LongType })
-            ) { entrada ->
-                val recintoId = entrada.arguments?.getLong("recintoId") ?: 0L
-                FichaScreen(recintoId = recintoId, onVolver = { navController.popBackStack() })
+            ) {
+                // El recintoId lo lee FichaViewModel desde SavedStateHandle
+                FichaScreen(onVolver = { navController.popBackStack() })
             }
             composable(Rutas.ESCANEAR) {
                 EscanearScreen(onRecintoEscaneado = { id -> navController.navigate(Rutas.ficha(id)) })
