@@ -6,15 +6,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 private val SantiagoSacroColors = lightColorScheme(
-    primary = Terracota,
-    onPrimary = Color.White,
-    primaryContainer = TerracotaClaro,
-    onPrimaryContainer = TerracotaOscuro,
+    primary = Ciruela,
+    onPrimary = TextoSobrePrimario,
+    primaryContainer = CiruelaClaro,
+    onPrimaryContainer = CiruelaOscuro,
 
-    secondary = Oro,
+    secondary = Turquesa,
     onSecondary = Color.White,
-    secondaryContainer = OroClaro,
-    onSecondaryContainer = Oro,
+    secondaryContainer = TurquesaClaro,
+    onSecondaryContainer = Turquesa,
 
     tertiary = Verde,
     onTertiary = Color.White,

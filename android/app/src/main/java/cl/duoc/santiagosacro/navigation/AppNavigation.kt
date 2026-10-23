@@ -29,13 +29,22 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import cl.duoc.santiagosacro.view.AgendaScreen
 import cl.duoc.santiagosacro.view.BienvenidaScreen
+import cl.duoc.santiagosacro.view.CrearRutaScreen
+import cl.duoc.santiagosacro.view.EditarFichaScreen
 import cl.duoc.santiagosacro.view.EscanearScreen
 import cl.duoc.santiagosacro.view.EventoScreen
 import cl.duoc.santiagosacro.view.FichaScreen
+import cl.duoc.santiagosacro.view.GuiasScreen
 import cl.duoc.santiagosacro.view.InicioScreen
 import cl.duoc.santiagosacro.view.LoginScreen
+import cl.duoc.santiagosacro.view.MapaScreen
 import cl.duoc.santiagosacro.view.MiRecintoScreen
 import cl.duoc.santiagosacro.view.PerfilScreen
+import cl.duoc.santiagosacro.view.PlanificarVisitaScreen
+import cl.duoc.santiagosacro.view.PublicarEventoScreen
+import cl.duoc.santiagosacro.view.RegistroScreen
+import cl.duoc.santiagosacro.view.RutaDetalleScreen
+import cl.duoc.santiagosacro.view.RutasScreen
 import cl.duoc.santiagosacro.view.VisitasScreen
 
 // Una pestaña de la barra inferior
@@ -80,7 +89,10 @@ fun AppNavigation() {
                 .consumeWindowInsets(innerPadding)
         ) {
             composable(Rutas.BIENVENIDA) {
-                BienvenidaScreen(onIniciarSesion = { navController.navigate(Rutas.LOGIN) })
+                BienvenidaScreen(
+                    onIniciarSesion = { navController.navigate(Rutas.LOGIN) },
+                    onCrearCuenta = { navController.navigate(Rutas.REGISTRO) }
+                )
             }
             composable(Rutas.LOGIN) {
                 LoginScreen(
@@ -90,13 +102,29 @@ fun AppNavigation() {
                             popUpTo(Rutas.BIENVENIDA) { inclusive = true }
                         }
                     },
+                    onVolver = { navController.popBackStack() },
+                    onCrearCuenta = { navController.navigate(Rutas.REGISTRO) }
+                )
+            }
+            composable(Rutas.REGISTRO) {
+                RegistroScreen(
+                    onCuentaCreada = { irAlLogin(navController) },
+                    onIrALogin = { irAlLogin(navController) },
                     onVolver = { navController.popBackStack() }
                 )
             }
             composable(Rutas.INICIO) {
                 InicioScreen(
                     onAbrirRecinto = { id -> navController.navigate(Rutas.ficha(id)) },
-                    onAdministrarRecinto = { navController.navigate(Rutas.MI_RECINTO) }
+                    onAdministrarRecinto = { navController.navigate(Rutas.MI_RECINTO) },
+                    onVerRutas = { navController.navigate(Rutas.RUTAS) },
+                    onVerMapa = { navController.navigate(Rutas.MAPA) }
+                )
+            }
+            composable(Rutas.MAPA) {
+                MapaScreen(
+                    onVolver = { navController.popBackStack() },
+                    onAbrirRecinto = { id -> navController.navigate(Rutas.ficha(id)) }
                 )
             }
             composable(
@@ -106,7 +134,33 @@ fun AppNavigation() {
                 // El recintoId lo lee FichaViewModel desde SavedStateHandle
                 FichaScreen(
                     onVolver = { navController.popBackStack() },
-                    onAbrirEvento = { id -> navController.navigate(Rutas.evento(id)) }
+                    onAbrirEvento = { id -> navController.navigate(Rutas.evento(id)) },
+                    onPlanificarVisita = { id -> navController.navigate(Rutas.planificar(id)) }
+                )
+            }
+            composable(
+                route = Rutas.PLANIFICAR,
+                arguments = listOf(navArgument("recintoId") { type = NavType.LongType })
+            ) {
+                PlanificarVisitaScreen(onVolver = { navController.popBackStack() })
+            }
+            composable(Rutas.RUTAS) {
+                RutasScreen(
+                    onVolver = { navController.popBackStack() },
+                    onAbrirRuta = { id -> navController.navigate(Rutas.ruta(id)) },
+                    onCrearRuta = { navController.navigate(Rutas.CREAR_RUTA) }
+                )
+            }
+            composable(Rutas.CREAR_RUTA) {
+                CrearRutaScreen(onVolver = { navController.popBackStack() })
+            }
+            composable(
+                route = Rutas.RUTA,
+                arguments = listOf(navArgument("rutaId") { type = NavType.LongType })
+            ) {
+                RutaDetalleScreen(
+                    onVolver = { navController.popBackStack() },
+                    onAbrirRecinto = { id -> navController.navigate(Rutas.ficha(id)) }
                 )
             }
             composable(Rutas.AGENDA) {
@@ -130,6 +184,7 @@ fun AppNavigation() {
             }
             composable(Rutas.PERFIL) {
                 PerfilScreen(
+                    onMiRecinto = { navController.navigate(Rutas.MI_RECINTO) },
                     onCerrarSesion = {
                         navController.navigate(Rutas.BIENVENIDA) {
                             // Borra todo el historial: después de salir no se puede volver atrás
@@ -141,8 +196,20 @@ fun AppNavigation() {
             composable(Rutas.MI_RECINTO) {
                 MiRecintoScreen(
                     onVolver = { navController.popBackStack() },
-                    onVerFicha = { id -> navController.navigate(Rutas.ficha(id)) }
+                    onVerFicha = { id -> navController.navigate(Rutas.ficha(id)) },
+                    onPublicarEvento = { navController.navigate(Rutas.PUBLICAR_EVENTO) },
+                    onEditarFicha = { navController.navigate(Rutas.EDITAR_FICHA) },
+                    onGuias = { navController.navigate(Rutas.GUIAS) }
                 )
+            }
+            composable(Rutas.EDITAR_FICHA) {
+                EditarFichaScreen(onVolver = { navController.popBackStack() })
+            }
+            composable(Rutas.GUIAS) {
+                GuiasScreen(onVolver = { navController.popBackStack() })
+            }
+            composable(Rutas.PUBLICAR_EVENTO) {
+                PublicarEventoScreen(onVolver = { navController.popBackStack() })
             }
         }
     }
@@ -164,6 +231,14 @@ private fun BarraInferior(rutaActual: String?, onSeleccionar: (String) -> Unit) 
                 )
             )
         }
+    }
+}
+
+// Después de crear la cuenta: va al login sin dejar el registro en el historial
+private fun irAlLogin(navController: NavHostController) {
+    navController.navigate(Rutas.LOGIN) {
+        popUpTo(Rutas.REGISTRO) { inclusive = true }
+        launchSingleTop = true
     }
 }
 

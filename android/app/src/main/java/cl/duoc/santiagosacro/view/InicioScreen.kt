@@ -21,6 +21,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.Route
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.CardDefaults
@@ -28,6 +30,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -57,6 +60,8 @@ import cl.duoc.santiagosacro.viewmodel.InicioViewModel
 fun InicioScreen(
     onAbrirRecinto: (Long) -> Unit,
     onAdministrarRecinto: () -> Unit,
+    onVerRutas: () -> Unit,
+    onVerMapa: () -> Unit,
     viewModel: InicioViewModel = viewModel()
 ) {
     val estado by viewModel.uiState.collectAsState()
@@ -70,7 +75,8 @@ fun InicioScreen(
     ) {
         // Encabezado
         item {
-            Column {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(modifier = Modifier.weight(1f)) {
                 if (estado.nombreUsuario.isNotEmpty()) {
                     Text(
                         text = "Hola, ${estado.nombreUsuario}",
@@ -85,6 +91,12 @@ fun InicioScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
+            Spacer(modifier = Modifier.width(12.dp))
+            // Acceso al mapa de la red
+            FilledTonalIconButton(onClick = onVerMapa, modifier = Modifier.size(52.dp)) {
+                Icon(Icons.Filled.Map, contentDescription = "Ver mapa")
+            }
+            }
         }
 
         // Solo para encargados: acceso a "Mi recinto"
@@ -92,6 +104,11 @@ fun InicioScreen(
             item {
                 TarjetaEncargado(recinto = recinto, onClick = onAdministrarRecinto)
             }
+        }
+
+        // Acceso a las rutas sugeridas
+        item {
+            TarjetaRutas(onClick = onVerRutas)
         }
 
         // Buscador
@@ -158,6 +175,47 @@ fun InicioScreen(
             else -> items(estado.recintos, key = { it.id }) { recinto ->
                 RecintoCard(recinto = recinto, onClick = { onAbrirRecinto(recinto.id) })
             }
+        }
+    }
+}
+
+// Acceso a las rutas patrimoniales sugeridas
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TarjetaRutas(onClick: () -> Unit) {
+    Surface(
+        onClick = onClick,
+        color = MaterialTheme.colorScheme.secondaryContainer,
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Route,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSecondaryContainer
+            )
+            Spacer(modifier = Modifier.width(14.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "Rutas patrimoniales",
+                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 17.sp),
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+                Text(
+                    text = "Recorridos sugeridos con tiempo estimado",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+            }
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = "Ver rutas",
+                tint = MaterialTheme.colorScheme.onSecondaryContainer
+            )
         }
     }
 }

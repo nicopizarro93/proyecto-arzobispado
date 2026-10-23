@@ -21,6 +21,8 @@ import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.School
+import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -35,12 +37,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import cl.duoc.santiagosacro.model.Rol
 import cl.duoc.santiagosacro.view.componentes.etiqueta
 import cl.duoc.santiagosacro.viewmodel.PerfilViewModel
 
 @Composable
 fun PerfilScreen(
     onCerrarSesion: () -> Unit,
+    onMiRecinto: () -> Unit,
     viewModel: PerfilViewModel = viewModel()
 ) {
     val usuario by viewModel.usuario.collectAsState()
@@ -93,6 +97,22 @@ fun PerfilScreen(
                     u.institucion?.let { institucion ->
                         DatoPerfil(icono = Icons.Filled.School, titulo = "Institución", valor = institucion)
                     }
+                }
+            }
+
+            // Acceso directo al panel del encargado
+            if (u.rol == Rol.ENCARGADO) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = onMiRecinto,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp),
+                    shape = RoundedCornerShape(14.dp)
+                ) {
+                    Icon(Icons.Filled.Tune, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Administrar mi recinto")
                 }
             }
         }

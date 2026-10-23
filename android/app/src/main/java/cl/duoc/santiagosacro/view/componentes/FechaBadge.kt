@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 import cl.duoc.santiagosacro.util.diaDelMes
 import cl.duoc.santiagosacro.util.mesCorto
 
-// Cuadro dorado con el día y el mes del evento (como en el mockup): "28" / "OCT"
+// Cuadro turquesa con el día y el mes del evento (como en el mockup): "28" / "OCT"
 @Composable
 fun FechaBadge(millis: Long, modifier: Modifier = Modifier) {
     Surface(

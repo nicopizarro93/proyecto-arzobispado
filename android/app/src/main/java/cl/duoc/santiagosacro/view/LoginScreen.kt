@@ -25,6 +25,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.ui.Alignment
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -46,6 +48,7 @@ import cl.duoc.santiagosacro.viewmodel.LoginViewModel
 fun LoginScreen(
     onIngresoExitoso: () -> Unit,
     onVolver: () -> Unit,
+    onCrearCuenta: () -> Unit,
     viewModel: LoginViewModel = viewModel()
 ) {
     // La pantalla solo dibuja el estado que le entrega el ViewModel
@@ -136,6 +139,12 @@ fun LoginScreen(
             } else {
                 Text(text = "Ingresar", fontSize = 16.sp)
             }
+        }
+        TextButton(
+            onClick = onCrearCuenta,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        ) {
+            Text("¿No tienes cuenta? Crear una cuenta")
         }
     }
 }

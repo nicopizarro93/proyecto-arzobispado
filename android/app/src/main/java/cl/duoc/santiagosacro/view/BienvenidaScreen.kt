@@ -14,6 +14,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -23,17 +24,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import cl.duoc.santiagosacro.ui.theme.Oro
+import cl.duoc.santiagosacro.ui.theme.Turquesa
 import cl.duoc.santiagosacro.ui.theme.SantiagoSacroTheme
-import cl.duoc.santiagosacro.ui.theme.Terracota
-import cl.duoc.santiagosacro.ui.theme.TerracotaClaro
-import cl.duoc.santiagosacro.ui.theme.TerracotaOscuro
+import cl.duoc.santiagosacro.ui.theme.Ciruela
+import cl.duoc.santiagosacro.ui.theme.CiruelaClaro
+import cl.duoc.santiagosacro.ui.theme.CiruelaOscuro
 import kotlin.math.cos
 import kotlin.math.sin
 
 // Pantalla de bienvenida (igual al mockup): rosetón, nombre, eslogan y botón de ingreso
 @Composable
-fun BienvenidaScreen(onIniciarSesion: () -> Unit) {
+fun BienvenidaScreen(onIniciarSesion: () -> Unit, onCrearCuenta: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -59,7 +60,7 @@ fun BienvenidaScreen(onIniciarSesion: () -> Unit) {
                     fontWeight = FontWeight.Normal,
                     fontSize = 19.sp
                 ),
-                color = TerracotaOscuro
+                color = CiruelaOscuro
             )
             Text(
                 text = "Descubre templos, museos, colegios y archivos de Santiago: " +
@@ -77,6 +78,14 @@ fun BienvenidaScreen(onIniciarSesion: () -> Unit) {
             ) {
                 Text(text = "Iniciar sesión", fontSize = 16.sp)
             }
+            TextButton(
+                onClick = onCrearCuenta,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp)
+            ) {
+                Text(text = "Crear una cuenta", fontSize = 16.sp)
+            }
         }
     }
 }
@@ -89,32 +98,32 @@ private fun Roseton(modifier: Modifier = Modifier) {
         val s = minOf(size.width / 390f, size.height / 360f)   // factor de escala
         val centro = Offset(size.width / 2f, size.height / 2f)
 
-        // Dos anillos exteriores dorados
-        drawCircle(color = Oro, radius = 150f * s, center = centro, alpha = 0.35f, style = Stroke(width = 1.5f * s))
-        drawCircle(color = Oro, radius = 138f * s, center = centro, alpha = 0.25f, style = Stroke(width = 1f * s))
+        // Dos anillos exteriores turquesa
+        drawCircle(color = Turquesa, radius = 150f * s, center = centro, alpha = 0.35f, style = Stroke(width = 1.5f * s))
+        drawCircle(color = Turquesa, radius = 138f * s, center = centro, alpha = 0.25f, style = Stroke(width = 1f * s))
 
         for (i in 0 until 12) {
-            // 12 círculos terracota que se cruzan (los "pétalos")
+            // 12 círculos ciruela que se cruzan (los "pétalos")
             val angulo = Math.toRadians(i * 30.0)
             val centroPetalo = Offset(
                 centro.x + 69f * s * cos(angulo).toFloat(),
                 centro.y + 69f * s * sin(angulo).toFloat()
             )
-            drawCircle(color = Terracota, radius = 69f * s, center = centroPetalo, alpha = 0.55f, style = Stroke(width = 1.4f * s))
+            drawCircle(color = Ciruela, radius = 69f * s, center = centroPetalo, alpha = 0.55f, style = Stroke(width = 1.4f * s))
 
-            // 12 puntos dorados entre los pétalos
+            // 12 puntos turquesa entre los pétalos
             val anguloPunto = Math.toRadians(i * 30.0 + 15.0)
             val punto = Offset(
                 centro.x + 146f * s * cos(anguloPunto).toFloat(),
                 centro.y + 146f * s * sin(anguloPunto).toFloat()
             )
-            drawCircle(color = Oro, radius = 4f * s, center = punto, alpha = 0.55f)
+            drawCircle(color = Turquesa, radius = 4f * s, center = punto, alpha = 0.55f)
         }
 
         // Centro del rosetón
-        drawCircle(color = TerracotaClaro, radius = 34f * s, center = centro)
-        drawCircle(color = Terracota, radius = 34f * s, center = centro, style = Stroke(width = 1.6f * s))
-        drawCircle(color = Terracota, radius = 12f * s, center = centro)
+        drawCircle(color = CiruelaClaro, radius = 34f * s, center = centro)
+        drawCircle(color = Ciruela, radius = 34f * s, center = centro, style = Stroke(width = 1.6f * s))
+        drawCircle(color = Ciruela, radius = 12f * s, center = centro)
     }
 }
 
@@ -122,6 +131,6 @@ private fun Roseton(modifier: Modifier = Modifier) {
 @Composable
 private fun BienvenidaPreview() {
     SantiagoSacroTheme {
-        BienvenidaScreen(onIniciarSesion = {})
+        BienvenidaScreen(onIniciarSesion = {}, onCrearCuenta = {})
     }
 }

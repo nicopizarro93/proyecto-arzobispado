@@ -1,13 +1,17 @@
 package cl.duoc.santiagosacro.view.componentes
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.DirectionsWalk
 import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.Church
+import androidx.compose.material.icons.filled.DirectionsBus
+import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Museum
 import androidx.compose.material.icons.filled.School
 import androidx.compose.ui.graphics.vector.ImageVector
 import cl.duoc.santiagosacro.model.EstadoApertura
+import cl.duoc.santiagosacro.model.ModoTraslado
 import cl.duoc.santiagosacro.model.RecintoConComuna
 import cl.duoc.santiagosacro.model.Rol
 import cl.duoc.santiagosacro.model.TipoEvento
@@ -66,6 +70,18 @@ fun TipoEvento.etiqueta(): String = when (this) {
     TipoEvento.AVISO -> "Aviso"
     TipoEvento.APERTURA_ESPECIAL -> "Apertura especial"
     TipoEvento.CIERRE_ESPECIAL -> "Cierre especial"
+}
+
+fun ModoTraslado.etiqueta(): String = when (this) {
+    ModoTraslado.A_PIE -> "A pie"
+    ModoTraslado.TRANSPORTE_PUBLICO -> "Transporte público"
+    ModoTraslado.VEHICULO -> "Vehículo"
+}
+
+fun ModoTraslado.icono(): ImageVector = when (this) {
+    ModoTraslado.A_PIE -> Icons.AutoMirrored.Filled.DirectionsWalk
+    ModoTraslado.TRANSPORTE_PUBLICO -> Icons.Filled.DirectionsBus
+    ModoTraslado.VEHICULO -> Icons.Filled.DirectionsCar
 }
 
 // "Av. Los Aromos 1240" o "Calle Los Talleres s/n" si no tiene número
