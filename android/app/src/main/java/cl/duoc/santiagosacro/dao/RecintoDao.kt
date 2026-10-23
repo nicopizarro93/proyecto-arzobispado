@@ -27,6 +27,10 @@ interface RecintoDao {
     @Query("SELECT * FROM recinto WHERE id = :id")
     fun recintoBuscarPorId(id: Long): Flow<Recinto?>
 
+    // Para el QR: consulta única (suspend) de un recinto activo
+    @Query("SELECT * FROM recinto WHERE id = :id AND activo = 1")
+    suspend fun recintoObtenerActivo(id: Long): Recinto?
+
     // Lista de Inicio: recintos activos con el nombre de su comuna (JOIN)
     @Query(
         """

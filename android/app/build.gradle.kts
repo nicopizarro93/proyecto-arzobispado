@@ -62,4 +62,6 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
+    // ML Kit: lector de códigos QR de Google (la cámara la maneja Google Play Services)
+    implementation(libs.play.services.code.scanner)
 }
