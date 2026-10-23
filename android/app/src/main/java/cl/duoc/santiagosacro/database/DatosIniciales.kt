@@ -1,5 +1,6 @@
 package cl.duoc.santiagosacro.database
 
+import androidx.room.withTransaction
 import cl.duoc.santiagosacro.model.Comuna
 import cl.duoc.santiagosacro.model.EstadoApertura
 import cl.duoc.santiagosacro.model.Recinto
@@ -130,10 +131,13 @@ object DatosIniciales {
         )
     )
 
-    // El orden importa por las FK: comuna <- recinto <- usuario (encargados)
+    // El orden importa por las FK: comuna <- recinto <- usuario (encargados).
+    // withTransaction: se guarda todo o nada; si algo falla, la BD no queda a medias.
     suspend fun cargar(db: AppDatabase) {
-        db.comunaDao().comunaAlmacenarTodas(comunas)
-        db.recintoDao().recintoAlmacenarTodos(recintos)
-        db.usuarioDao().usuarioAlmacenarTodos(usuarios)
+        db.withTransaction {
+            db.comunaDao().comunaAlmacenarTodas(comunas)
+            db.recintoDao().recintoAlmacenarTodos(recintos)
+            db.usuarioDao().usuarioAlmacenarTodos(usuarios)
+        }
     }
 }
