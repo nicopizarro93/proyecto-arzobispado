@@ -9,10 +9,79 @@ DSY1105 Desarrollo de Aplicaciones Móviles · Duoc UC.
 
 | Carpeta | Contenido |
 |---|---|
+| `android/` | App Android en Kotlin + Jetpack Compose (MVVM, Room, Navigation, ML Kit) |
 | `backend/` | API REST en Spring Boot (Java 21, JPA, Flyway, MySQL) |
-| `android/` | App Android en Kotlin + Jetpack Compose (próximamente) |
 | `database/` | Script MySQL del modelo relacional |
-| `docs/` | Casos de uso, historias de usuario, MER y mockup |
+| `docs/` | Casos de uso, historias de usuario, MER, mockup y códigos QR de prueba (`docs/qr`) |
+
+## App Android (versión 1.0.0)
+
+En esta entrega la app funciona con una **base de datos local Room** y **no se conecta al backend**.
+
+| Pantalla | Qué hace |
+|---|---|
+| Bienvenida | Presentación de la app y botón para iniciar sesión |
+| Login | Valida el formulario y el correo y la contraseña contra Room (la contraseña se guarda como hash) |
+| Inicio | Lista de recintos con su estado, buscador (sin importar tildes) y filtros por tipo |
+| Ficha | Tipo, comuna, estado, dirección, historia y próximos eventos del recinto |
+| Agenda cultural | Conciertos, exposiciones y celebraciones próximas de los recintos |
+| Detalle de evento | Fecha, lugar y descripción del evento, con acceso a la ficha del recinto |
+| Escanear | Lector de códigos QR con ML Kit de Google: registra la visita y abre la ficha |
+| Mis visitas | Historial de los recintos visitados por el usuario, con fecha y hora |
+| Perfil | Datos de la cuenta y cerrar sesión |
+| Mi recinto (solo encargados) | El encargado abre, cierra o marca "En celebración" su recinto; el cambio se ve al instante en la lista y la ficha |
+
+### Cómo ejecutarla
+
+1. Abrir la carpeta `android/` en Android Studio (AGP 9.4, JDK incluido en Android Studio).
+2. Esperar la sincronización de Gradle.
+3. Usar un emulador con **Android 16 (API 36) y Google Play**, con internet: el lector QR lo provee Google Play Services.
+4. Ejecutar con **Run 'app'**. Al abrirse por primera vez, la app carga los datos iniciales en Room.
+
+Las fechas de los eventos se calculan desde el día en que se instala la app (como en las migraciones del backend), así siempre hay eventos próximos. Para "refrescarlas", desinstalar y volver a instalar la app.
+
+### Cuentas de prueba
+
+Todas usan la contraseña `Prueba123`.
+
+| Correo | Tipo de cuenta |
+|---|---|
+| `visitante@santiagosacro.cl` | Visitante |
+| `docente@santiagosacro.cl` | Docente |
+| `encargado.capilla@santiagosacro.cl` | Encargado de la Capilla del Buen Pastor |
+| `encargado.museo@santiagosacro.cl` | Encargado del Museo de Arte Sacro Los Aromos |
+| `admin@santiagosacro.cl` | Administrador |
+
+### Cómo probar el lector QR
+
+Los códigos están en `docs/qr` (también en un PDF para imprimir). Cada uno contiene el texto `santiagosacro:recinto:{id}`.
+
+1. En el emulador: **Extended controls (⋯) → Camera → Virtual scene images → Add image** y elegir, por ejemplo, `qr_01_capilla-del-buen-pastor.png`.
+2. En la app: pestaña **Escanear → Escanear código QR**.
+3. En la cámara virtual, mantener **Alt** y moverse con **W A S D** y el mouse hasta enfocar el código.
+
+`qr_08` corresponde a un recinto dado de baja y `qr_99` a un código de otra página: ambos muestran un mensaje de error.
+
+### Arquitectura
+
+```
+android/app/src/main/java/cl/duoc/santiagosacro/
+├── model/        Entidades de Room (Comuna, Recinto, Usuario, Visita, Evento) y resultados de consultas
+├── dao/          Consultas de Room (@Query, @Insert, @Update)
+├── database/     AppDatabase y datos iniciales
+├── repository/   Acceso a los datos y sesión del usuario
+├── viewmodel/    Estado (StateFlow) y lógica de cada pantalla
+├── view/         Pantallas en Jetpack Compose
+├── navigation/   Rutas y NavHost con la barra inferior
+├── ui/theme/     Colores y tipografía de Santiago Sacro
+└── util/         Hash de contraseñas, lectura de códigos QR y textos
+```
+
+Flujo de los datos: **View → ViewModel → Repository → DAO → Room**. Las pantallas observan el estado del ViewModel y se actualizan solas cuando cambian los datos.
+
+### Pruebas unitarias
+
+En Android Studio: clic derecho en `app/src/test/java` → **Run 'Tests in…'** (9 pruebas del lector QR y de la búsqueda sin tildes).
 
 ## Cómo ejecutar el backend
 
@@ -22,7 +91,9 @@ DSY1105 Desarrollo de Aplicaciones Móviles · Duoc UC.
 ```
    .\mvnw.cmd spring-boot:run
 ```
-3. Flyway crea la base `santiago_sacro` con sus tablas al arrancar.
+3. Flyway crea la base `santiago_sacro` con sus tablas y datos de prueba al arrancar.
+
+Pruebas del backend: `.\mvnw.cmd test`.
 
 ## Flujo de trabajo con Git
 

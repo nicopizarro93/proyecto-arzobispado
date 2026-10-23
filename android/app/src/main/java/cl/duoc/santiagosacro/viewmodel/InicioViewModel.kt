@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import cl.duoc.santiagosacro.database.AppDatabase
 import cl.duoc.santiagosacro.model.RecintoConComuna
+import cl.duoc.santiagosacro.model.Rol
 import cl.duoc.santiagosacro.model.TipoRecinto
 import cl.duoc.santiagosacro.repository.RecintoRepository
 import cl.duoc.santiagosacro.repository.SesionRepository
@@ -21,6 +22,7 @@ data class InicioUiState(
     val nombreUsuario: String = "",
     val tipoSeleccionado: TipoRecinto? = null,          // null = todos los tipos
     val recintos: List<RecintoConComuna> = emptyList(),
+    val recintoACargo: RecintoConComuna? = null,       // solo para encargados
     val cargando: Boolean = true
 )
 
@@ -50,10 +52,17 @@ class InicioViewModel(application: Application) : AndroidViewModel(application) 
                 r.comuna.sinAcentos().contains(filtro, ignoreCase = true)
             coincideTipo && coincideTexto
         }
+        // Si quien inició sesión es encargado, se busca su recinto para mostrarle el acceso a "Mi recinto"
+        val recintoACargo = if (usuario?.rol == Rol.ENCARGADO) {
+            recintos.find { it.id == usuario?.recintoId }
+        } else {
+            null
+        }
         InicioUiState(
             nombreUsuario = usuario?.nombre ?: "",
             tipoSeleccionado = tipo,
             recintos = filtrados,
+            recintoACargo = recintoACargo,
             cargando = false
         )
     }.stateIn(

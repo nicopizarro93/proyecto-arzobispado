@@ -6,10 +6,12 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import cl.duoc.santiagosacro.dao.ComunaDao
+import cl.duoc.santiagosacro.dao.EventoDao
 import cl.duoc.santiagosacro.dao.RecintoDao
 import cl.duoc.santiagosacro.dao.UsuarioDao
 import cl.duoc.santiagosacro.dao.VisitaDao
 import cl.duoc.santiagosacro.model.Comuna
+import cl.duoc.santiagosacro.model.Evento
 import cl.duoc.santiagosacro.model.Recinto
 import cl.duoc.santiagosacro.model.Usuario
 import cl.duoc.santiagosacro.model.Visita
@@ -18,8 +20,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Database(
-    entities = [Comuna::class, Recinto::class, Usuario::class, Visita::class],
-    version = 3,
+    entities = [Comuna::class, Recinto::class, Usuario::class, Visita::class, Evento::class],
+    version = 4,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -28,6 +30,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun recintoDao(): RecintoDao
     abstract fun usuarioDao(): UsuarioDao
     abstract fun visitaDao(): VisitaDao
+    abstract fun eventoDao(): EventoDao
 
     companion object {
         @Volatile

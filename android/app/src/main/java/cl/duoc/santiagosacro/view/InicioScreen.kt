@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,6 +33,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -54,6 +56,7 @@ import cl.duoc.santiagosacro.viewmodel.InicioViewModel
 @Composable
 fun InicioScreen(
     onAbrirRecinto: (Long) -> Unit,
+    onAdministrarRecinto: () -> Unit,
     viewModel: InicioViewModel = viewModel()
 ) {
     val estado by viewModel.uiState.collectAsState()
@@ -81,6 +84,13 @@ fun InicioScreen(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+            }
+        }
+
+        // Solo para encargados: acceso a "Mi recinto"
+        estado.recintoACargo?.let { recinto ->
+            item {
+                TarjetaEncargado(recinto = recinto, onClick = onAdministrarRecinto)
             }
         }
 
@@ -148,6 +158,49 @@ fun InicioScreen(
             else -> items(estado.recintos, key = { it.id }) { recinto ->
                 RecintoCard(recinto = recinto, onClick = { onAbrirRecinto(recinto.id) })
             }
+        }
+    }
+}
+
+// Tarjeta que ve solo el encargado: su recinto, su estado y el acceso para cambiarlo
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TarjetaEncargado(recinto: RecintoConComuna, onClick: () -> Unit) {
+    Surface(
+        onClick = onClick,
+        color = MaterialTheme.colorScheme.primaryContainer,
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Tune,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.width(14.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "Administra tu recinto",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+                Text(
+                    text = recinto.nombreOficial,
+                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 17.sp),
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                EstadoChip(estado = recinto.estadoApertura)
+            }
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = "Cambiar estado",
+                tint = MaterialTheme.colorScheme.onPrimaryContainer
+            )
         }
     }
 }
