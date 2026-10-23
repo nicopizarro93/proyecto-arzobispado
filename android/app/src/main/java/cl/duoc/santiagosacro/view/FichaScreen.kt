@@ -19,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.QrCodeScanner
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -36,12 +37,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cl.duoc.santiagosacro.model.EventoDetalle
+import cl.duoc.santiagosacro.model.Horario
 import cl.duoc.santiagosacro.model.RecintoConComuna
 import cl.duoc.santiagosacro.view.componentes.EstadoChip
 import cl.duoc.santiagosacro.view.componentes.EventoItem
+import cl.duoc.santiagosacro.view.componentes.HorarioSemana
 import cl.duoc.santiagosacro.view.componentes.direccion
 import cl.duoc.santiagosacro.view.componentes.etiqueta
 import cl.duoc.santiagosacro.view.componentes.icono
@@ -52,6 +57,7 @@ import cl.duoc.santiagosacro.viewmodel.FichaViewModel
 fun FichaScreen(
     onVolver: () -> Unit,
     onAbrirEvento: (Long) -> Unit,
+    onPlanificarVisita: (Long) -> Unit,
     viewModel: FichaViewModel = viewModel()
 ) {
     val estado by viewModel.uiState.collectAsState()
@@ -93,7 +99,9 @@ fun FichaScreen(
             else -> FichaContenido(
                 recinto = recinto,
                 eventos = estado.eventos,
+                horarios = estado.horarios,
                 onAbrirEvento = onAbrirEvento,
+                onPlanificarVisita = onPlanificarVisita,
                 modifier = Modifier.padding(innerPadding)
             )
         }
@@ -104,7 +112,9 @@ fun FichaScreen(
 private fun FichaContenido(
     recinto: RecintoConComuna,
     eventos: List<EventoDetalle>,
+    horarios: List<Horario>,
     onAbrirEvento: (Long) -> Unit,
+    onPlanificarVisita: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -119,7 +129,14 @@ private fun FichaContenido(
                 .fillMaxWidth()
                 .height(160.dp)
                 .clip(RoundedCornerShape(20.dp))
-                .background(MaterialTheme.colorScheme.primaryContainer),
+                .background(
+                    Brush.linearGradient(
+                        listOf(
+                            MaterialTheme.colorScheme.primaryContainer,
+                            MaterialTheme.colorScheme.secondaryContainer
+                        )
+                    )
+                ),
             contentAlignment = Alignment.Center
         ) {
             Icon(
@@ -165,6 +182,12 @@ private fun FichaContenido(
         }
         Spacer(modifier = Modifier.height(24.dp))
 
+        // Horario de atención (el día de hoy aparece destacado)
+        Text(text = "Horario", style = MaterialTheme.typography.titleMedium)
+        Spacer(modifier = Modifier.height(8.dp))
+        HorarioSemana(horarios = horarios)
+        Spacer(modifier = Modifier.height(24.dp))
+
         // Historia
         Text(text = "Historia", style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.height(8.dp))
@@ -172,6 +195,18 @@ private fun FichaContenido(
             text = recinto.descripcionHistorica ?: "Este recinto aún no tiene reseña histórica.",
             style = MaterialTheme.typography.bodyLarge
         )
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Planificar una visita a este recinto
+        Button(
+            onClick = { onPlanificarVisita(recinto.id) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(52.dp),
+            shape = RoundedCornerShape(14.dp)
+        ) {
+            Text(text = "Planificar visita", fontSize = 16.sp)
+        }
         Spacer(modifier = Modifier.height(24.dp))
 
         // Próximos eventos del recinto (solo si tiene)

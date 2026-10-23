@@ -14,6 +14,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -33,7 +34,7 @@ import kotlin.math.sin
 
 // Pantalla de bienvenida (igual al mockup): rosetón, nombre, eslogan y botón de ingreso
 @Composable
-fun BienvenidaScreen(onIniciarSesion: () -> Unit) {
+fun BienvenidaScreen(onIniciarSesion: () -> Unit, onCrearCuenta: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -76,6 +77,14 @@ fun BienvenidaScreen(onIniciarSesion: () -> Unit) {
                 shape = RoundedCornerShape(14.dp)
             ) {
                 Text(text = "Iniciar sesión", fontSize = 16.sp)
+            }
+            TextButton(
+                onClick = onCrearCuenta,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp)
+            ) {
+                Text(text = "Crear una cuenta", fontSize = 16.sp)
             }
         }
     }
@@ -122,6 +131,6 @@ private fun Roseton(modifier: Modifier = Modifier) {
 @Composable
 private fun BienvenidaPreview() {
     SantiagoSacroTheme {
-        BienvenidaScreen(onIniciarSesion = {})
+        BienvenidaScreen(onIniciarSesion = {}, onCrearCuenta = {})
     }
 }

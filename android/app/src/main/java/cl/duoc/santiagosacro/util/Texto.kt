@@ -21,6 +21,21 @@ private val espanolChile = Locale.forLanguageTag("es-CL")
 
 private fun aFecha(millis: Long) = Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault())
 
+// Nombre del día: 1 = "Lunes" ... 7 = "Domingo"
+fun nombreDia(diaSemana: Int): String =
+    listOf("Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo")[diaSemana - 1]
+
+// Día de la semana de hoy: 1 = lunes ... 7 = domingo
+fun diaDeHoy(): Int = java.time.LocalDate.now().dayOfWeek.value
+
+// "45 min" o "2 h 15 min"
+fun formatearDuracion(minutos: Int): String {
+    if (minutos < 60) return "$minutos min"
+    val horas = minutos / 60
+    val resto = minutos % 60
+    return if (resto == 0) "$horas h" else "$horas h $resto min"
+}
+
 // Para la etiqueta de fecha de los eventos: "28" y "OCT"
 fun diaDelMes(millis: Long): String = aFecha(millis).dayOfMonth.toString()
 

@@ -18,14 +18,20 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Campaign
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.foundation.clickable
 import androidx.compose.material3.Button
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
@@ -38,6 +44,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -57,6 +64,9 @@ import cl.duoc.santiagosacro.viewmodel.MiRecintoViewModel
 fun MiRecintoScreen(
     onVolver: () -> Unit,
     onVerFicha: (Long) -> Unit,
+    onPublicarEvento: () -> Unit,
+    onEditarFicha: () -> Unit,
+    onGuias: () -> Unit,
     viewModel: MiRecintoViewModel = viewModel()
 ) {
     val estado by viewModel.uiState.collectAsState()
@@ -110,6 +120,9 @@ fun MiRecintoScreen(
                 onElegir = viewModel::elegirEstado,
                 onGuardar = viewModel::guardar,
                 onVerFicha = onVerFicha,
+                onPublicarEvento = onPublicarEvento,
+                onEditarFicha = onEditarFicha,
+                onGuias = onGuias,
                 modifier = Modifier.padding(innerPadding)
             )
         }
@@ -123,6 +136,9 @@ private fun MiRecintoContenido(
     onElegir: (EstadoApertura) -> Unit,
     onGuardar: () -> Unit,
     onVerFicha: (Long) -> Unit,
+    onPublicarEvento: () -> Unit,
+    onEditarFicha: () -> Unit,
+    onGuias: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -188,17 +204,74 @@ private fun MiRecintoContenido(
                 Text(text = "Guardar estado", fontSize = 16.sp)
             }
         }
+        Spacer(modifier = Modifier.height(28.dp))
+
+        // Panel del encargado: todo lo que administra de su recinto
+        Text(text = "Administración", style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.height(8.dp))
-        OutlinedButton(
-            onClick = { onVerFicha(recinto.id) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp),
-            shape = RoundedCornerShape(14.dp)
-        ) {
-            Text("Ver ficha pública")
+        OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+            Column {
+                AccionEncargado(
+                    icono = Icons.Filled.Edit,
+                    titulo = "Editar ficha y horarios",
+                    detalle = "Nombre, dirección, historia y horario de atención",
+                    onClick = onEditarFicha
+                )
+                HorizontalDivider()
+                AccionEncargado(
+                    icono = Icons.Filled.Campaign,
+                    titulo = "Publicar evento o aviso",
+                    detalle = "Incluye aperturas y cierres excepcionales",
+                    onClick = onPublicarEvento
+                )
+                HorizontalDivider()
+                AccionEncargado(
+                    icono = Icons.Filled.Groups,
+                    titulo = "Guías y solicitudes",
+                    detalle = "Disponibilidad de guías y pedidos de colegios",
+                    onClick = onGuias
+                )
+                HorizontalDivider()
+                AccionEncargado(
+                    icono = Icons.Filled.Visibility,
+                    titulo = "Ver ficha pública",
+                    detalle = "Cómo la ven los visitantes",
+                    onClick = { onVerFicha(recinto.id) }
+                )
+            }
         }
         Spacer(modifier = Modifier.height(16.dp))
+    }
+}
+
+// Una fila del panel del encargado
+@Composable
+private fun AccionEncargado(icono: ImageVector, titulo: String, detalle: String, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(icono, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+        Spacer(modifier = Modifier.width(14.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = titulo,
+                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)
+            )
+            Text(
+                text = detalle,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
