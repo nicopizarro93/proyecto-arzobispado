@@ -3,7 +3,10 @@ package cl.duoc.santiagosacro.database
 import cl.duoc.santiagosacro.model.Comuna
 import cl.duoc.santiagosacro.model.EstadoApertura
 import cl.duoc.santiagosacro.model.Recinto
+import cl.duoc.santiagosacro.model.Rol
 import cl.duoc.santiagosacro.model.TipoRecinto
+import cl.duoc.santiagosacro.model.Usuario
+import cl.duoc.santiagosacro.util.hashPassword
 
 // Datos iniciales: los mismos del backend (V2 y V3), con los mismos id
 object DatosIniciales {
@@ -95,9 +98,42 @@ object DatosIniciales {
         )
     )
 
-    // Primero las comunas: recinto tiene una FK a comuna
+    // Todas las cuentas de prueba usan la contraseña Prueba123 (guardada como hash)
+    private val claveDePrueba = hashPassword("Prueba123")
+
+    // V4 y V8 del backend: mismos usuarios y mismos id
+    private val usuarios = listOf(
+        Usuario(
+            id = 1, rol = Rol.ADMINISTRADOR, recintoId = null,
+            nombre = "Ana", apellido = "Rojas", correo = "admin@santiagosacro.cl",
+            passwordHash = claveDePrueba, institucion = null
+        ),
+        Usuario(
+            id = 2, rol = Rol.ENCARGADO, recintoId = 1,   // Capilla del Buen Pastor
+            nombre = "Pedro", apellido = "Soto", correo = "encargado.capilla@santiagosacro.cl",
+            passwordHash = claveDePrueba, institucion = null
+        ),
+        Usuario(
+            id = 3, rol = Rol.ENCARGADO, recintoId = 3,   // Museo de Arte Sacro Los Aromos
+            nombre = "Carmen", apellido = "Muñoz", correo = "encargado.museo@santiagosacro.cl",
+            passwordHash = claveDePrueba, institucion = null
+        ),
+        Usuario(
+            id = 4, rol = Rol.VISITANTE, recintoId = null,
+            nombre = "Lucía", apellido = "Herrera", correo = "visitante@santiagosacro.cl",
+            passwordHash = claveDePrueba, institucion = null
+        ),
+        Usuario(
+            id = 5, rol = Rol.DOCENTE, recintoId = null,
+            nombre = "Jorge", apellido = "Contreras", correo = "docente@santiagosacro.cl",
+            passwordHash = claveDePrueba, institucion = "Colegio San Esteban"
+        )
+    )
+
+    // El orden importa por las FK: comuna <- recinto <- usuario (encargados)
     suspend fun cargar(db: AppDatabase) {
         db.comunaDao().comunaAlmacenarTodas(comunas)
         db.recintoDao().recintoAlmacenarTodos(recintos)
+        db.usuarioDao().usuarioAlmacenarTodos(usuarios)
     }
 }

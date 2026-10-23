@@ -7,21 +7,24 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import cl.duoc.santiagosacro.dao.ComunaDao
 import cl.duoc.santiagosacro.dao.RecintoDao
+import cl.duoc.santiagosacro.dao.UsuarioDao
 import cl.duoc.santiagosacro.model.Comuna
 import cl.duoc.santiagosacro.model.Recinto
+import cl.duoc.santiagosacro.model.Usuario
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Database(
-    entities = [Comuna::class, Recinto::class],
-    version = 1,
+    entities = [Comuna::class, Recinto::class, Usuario::class],
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun comunaDao(): ComunaDao
     abstract fun recintoDao(): RecintoDao
+    abstract fun usuarioDao(): UsuarioDao
 
     companion object {
         @Volatile
