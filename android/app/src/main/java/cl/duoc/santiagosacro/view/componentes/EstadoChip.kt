@@ -11,8 +11,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import cl.duoc.santiagosacro.model.EstadoApertura
 import cl.duoc.santiagosacro.ui.theme.GrisCerrado
-import cl.duoc.santiagosacro.ui.theme.Oro
-import cl.duoc.santiagosacro.ui.theme.OroClaro
+import cl.duoc.santiagosacro.ui.theme.Turquesa
+import cl.duoc.santiagosacro.ui.theme.TurquesaClaro
 import cl.duoc.santiagosacro.ui.theme.SuperficieVariante
 import cl.duoc.santiagosacro.ui.theme.Verde
 import cl.duoc.santiagosacro.ui.theme.VerdeClaro
@@ -23,7 +23,7 @@ fun EstadoChip(estado: EstadoApertura, modifier: Modifier = Modifier) {
     val (texto, fondo, colorTexto) = when (estado) {
         EstadoApertura.ABIERTO -> Triple("Abierto", VerdeClaro, Verde)
         EstadoApertura.CERRADO -> Triple("Cerrado", SuperficieVariante, GrisCerrado)
-        EstadoApertura.EN_CELEBRACION -> Triple("En celebración", OroClaro, Oro)
+        EstadoApertura.EN_CELEBRACION -> Triple("En celebración", TurquesaClaro, Turquesa)
     }
     Surface(color = fondo, shape = RoundedCornerShape(50), modifier = modifier) {
         Text(
