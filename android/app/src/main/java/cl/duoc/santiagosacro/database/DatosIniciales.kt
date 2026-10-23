@@ -131,6 +131,13 @@ object DatosIniciales {
         )
     )
 
+    // Carga los datos solo si la BD está vacía (así no se duplican cada vez que se abre la app)
+    suspend fun cargarSiEstaVacia(db: AppDatabase) {
+        if (db.comunaDao().comunaContar() == 0) {
+            cargar(db)
+        }
+    }
+
     // El orden importa por las FK: comuna <- recinto <- usuario (encargados).
     // withTransaction: se guarda todo o nada; si algo falla, la BD no queda a medias.
     suspend fun cargar(db: AppDatabase) {
