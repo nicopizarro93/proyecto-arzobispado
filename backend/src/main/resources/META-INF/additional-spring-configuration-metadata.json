@@ -1,0 +1,15 @@
+{
+  "properties": [
+    {
+      "name": "app.jwt.secret",
+      "type": "java.lang.String",
+      "description": "Clave secreta para firmar los tokens JWT (HS256). Mínimo 32 caracteres. Se define en backend/.env como JWT_SECRET."
+    },
+    {
+      "name": "app.jwt.expiracion-minutos",
+      "type": "java.lang.Long",
+      "description": "Minutos de validez del token JWT.",
+      "defaultValue": 480
+    }
+  ]
+}

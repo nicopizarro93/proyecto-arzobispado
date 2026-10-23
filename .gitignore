@@ -24,3 +24,4 @@ android/local.properties
 *.aab
 *.jks
 *.keystore
+android/.kotlin/
