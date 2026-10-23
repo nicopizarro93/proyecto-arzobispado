@@ -1,6 +1,7 @@
 package cl.duoc.santiagosacro.view
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -37,8 +38,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import cl.duoc.santiagosacro.model.EventoDetalle
 import cl.duoc.santiagosacro.model.RecintoConComuna
 import cl.duoc.santiagosacro.view.componentes.EstadoChip
+import cl.duoc.santiagosacro.view.componentes.EventoItem
 import cl.duoc.santiagosacro.view.componentes.direccion
 import cl.duoc.santiagosacro.view.componentes.etiqueta
 import cl.duoc.santiagosacro.view.componentes.icono
@@ -48,6 +51,7 @@ import cl.duoc.santiagosacro.viewmodel.FichaViewModel
 @Composable
 fun FichaScreen(
     onVolver: () -> Unit,
+    onAbrirEvento: (Long) -> Unit,
     viewModel: FichaViewModel = viewModel()
 ) {
     val estado by viewModel.uiState.collectAsState()
@@ -86,13 +90,23 @@ fun FichaScreen(
             ) {
                 Text("No encontramos este recinto.", style = MaterialTheme.typography.bodyLarge)
             }
-            else -> FichaContenido(recinto = recinto, modifier = Modifier.padding(innerPadding))
+            else -> FichaContenido(
+                recinto = recinto,
+                eventos = estado.eventos,
+                onAbrirEvento = onAbrirEvento,
+                modifier = Modifier.padding(innerPadding)
+            )
         }
     }
 }
 
 @Composable
-private fun FichaContenido(recinto: RecintoConComuna, modifier: Modifier = Modifier) {
+private fun FichaContenido(
+    recinto: RecintoConComuna,
+    eventos: List<EventoDetalle>,
+    onAbrirEvento: (Long) -> Unit,
+    modifier: Modifier = Modifier
+) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -159,6 +173,22 @@ private fun FichaContenido(recinto: RecintoConComuna, modifier: Modifier = Modif
             style = MaterialTheme.typography.bodyLarge
         )
         Spacer(modifier = Modifier.height(24.dp))
+
+        // Próximos eventos del recinto (solo si tiene)
+        if (eventos.isNotEmpty()) {
+            Text(text = "Próximos eventos", style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(8.dp))
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                eventos.forEach { evento ->
+                    EventoItem(
+                        evento = evento,
+                        mostrarRecinto = false,
+                        onClick = { onAbrirEvento(evento.id) }
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(24.dp))
+        }
 
         // Invitación a escanear el QR
         Surface(

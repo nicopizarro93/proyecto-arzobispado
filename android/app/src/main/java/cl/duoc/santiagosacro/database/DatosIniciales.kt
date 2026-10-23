@@ -3,11 +3,16 @@ package cl.duoc.santiagosacro.database
 import androidx.room.withTransaction
 import cl.duoc.santiagosacro.model.Comuna
 import cl.duoc.santiagosacro.model.EstadoApertura
+import cl.duoc.santiagosacro.model.EstadoEvento
+import cl.duoc.santiagosacro.model.Evento
 import cl.duoc.santiagosacro.model.Recinto
 import cl.duoc.santiagosacro.model.Rol
+import cl.duoc.santiagosacro.model.TipoEvento
 import cl.duoc.santiagosacro.model.TipoRecinto
 import cl.duoc.santiagosacro.model.Usuario
 import cl.duoc.santiagosacro.util.hashPassword
+import java.time.LocalDate
+import java.time.ZoneId
 
 // Datos iniciales: los mismos del backend (V2 y V3), con los mismos id
 object DatosIniciales {
@@ -18,6 +23,10 @@ object DatosIniciales {
     private const val MAIPU = 19L
     private const val RECOLETA = 27L
     private const val PUENTE_ALTO = 33L
+
+    // id de los recintos que tienen eventos
+    private const val CAPILLA_BUEN_PASTOR = 1L
+    private const val MUSEO_LOS_AROMOS = 3L
 
     // V2__datos_iniciales.sql: el id es la posición en la lista (1, 2, 3...)
     private val comunas = listOf(
@@ -131,6 +140,77 @@ object DatosIniciales {
         )
     )
 
+    // Fecha relativa a hoy, como CURDATE() + INTERVAL en el backend (en milisegundos).
+    // Así siempre hay eventos próximos al instalar la app.
+    private fun fecha(dias: Long, hora: Int, minuto: Int = 0): Long =
+        LocalDate.now().plusDays(dias).atTime(hora, minuto)
+            .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+
+    // V5 del backend: mismos eventos y mismos id
+    private val eventos = listOf(
+        Evento(
+            id = 1, recintoId = CAPILLA_BUEN_PASTOR, tipoEvento = TipoEvento.CONCIERTO,
+            titulo = "Concierto de música sacra: Coro del Llano",
+            descripcion = "El coro del barrio interpreta obras de música sacra chilena del siglo XIX.",
+            fechaHoraInicio = fecha(5, 19), fechaHoraFin = fecha(5, 20, 30)
+        ),
+        Evento(
+            id = 2, recintoId = CAPILLA_BUEN_PASTOR, tipoEvento = TipoEvento.HITO_LITURGICO,
+            titulo = "Misa solemne por el aniversario de la capilla",
+            descripcion = "Celebración presidida por el párroco, con procesión por el pasaje El Llano.",
+            fechaHoraInicio = fecha(14, 11), fechaHoraFin = fecha(14, 12, 30)
+        ),
+        Evento(
+            id = 3, recintoId = CAPILLA_BUEN_PASTOR, tipoEvento = TipoEvento.HITO_LITURGICO,
+            titulo = "Bendición de las mascotas del barrio",
+            descripcion = "Trae a tu mascota al atrio de la capilla para recibir la bendición.",
+            fechaHoraInicio = fecha(3, 12), fechaHoraFin = null
+        ),
+        Evento(
+            id = 4, recintoId = CAPILLA_BUEN_PASTOR, tipoEvento = TipoEvento.AVISO,
+            titulo = "Mantención del campanario",
+            descripcion = "El campanario permanece cerrado a las visitas. La capilla sigue abierta en su horario habitual.",
+            fechaHoraInicio = fecha(1, 9), fechaHoraFin = fecha(8, 18)
+        ),
+        Evento(
+            id = 5, recintoId = CAPILLA_BUEN_PASTOR, tipoEvento = TipoEvento.CIERRE_ESPECIAL,
+            titulo = "Cierre por limpieza de vitrales",
+            descripcion = "La capilla permanecerá cerrada durante la mañana.",
+            fechaHoraInicio = fecha(10, 9), fechaHoraFin = fecha(10, 13)
+        ),
+        Evento(
+            id = 6, recintoId = CAPILLA_BUEN_PASTOR, tipoEvento = TipoEvento.ACTIVIDAD_CULTURAL,
+            titulo = "Recorrido por la historia del barrio del Llano",
+            descripcion = "Evento ya terminado: no aparece en la agenda.",
+            fechaHoraInicio = fecha(-7, 10), fechaHoraFin = fecha(-7, 12)
+        ),
+        Evento(
+            id = 7, recintoId = CAPILLA_BUEN_PASTOR, tipoEvento = TipoEvento.CONCIERTO,
+            titulo = "Recital de órgano",
+            descripcion = "Cancelado por reparación del órgano: no aparece en la agenda.",
+            fechaHoraInicio = fecha(12, 19), fechaHoraFin = fecha(12, 20),
+            estado = EstadoEvento.CANCELADO
+        ),
+        Evento(
+            id = 8, recintoId = MUSEO_LOS_AROMOS, tipoEvento = TipoEvento.EXPOSICION,
+            titulo = "Exposición: platería colonial del poniente",
+            descripcion = "Muestra de cálices, custodias y candelabros de parroquias del sector poniente.",
+            fechaHoraInicio = fecha(2, 10), fechaHoraFin = fecha(40, 18)
+        ),
+        Evento(
+            id = 9, recintoId = MUSEO_LOS_AROMOS, tipoEvento = TipoEvento.ACTIVIDAD_CULTURAL,
+            titulo = "Taller familiar de restauración",
+            descripcion = "Taller para niños y adultos sobre el cuidado de las imágenes religiosas antiguas.",
+            fechaHoraInicio = fecha(9, 11), fechaHoraFin = fecha(9, 13)
+        ),
+        Evento(
+            id = 10, recintoId = MUSEO_LOS_AROMOS, tipoEvento = TipoEvento.APERTURA_ESPECIAL,
+            titulo = "Apertura nocturna del museo",
+            descripcion = "Visitas guiadas con iluminación especial.",
+            fechaHoraInicio = fecha(6, 19), fechaHoraFin = fecha(6, 23)
+        )
+    )
+
     // Carga los datos solo si la BD está vacía (así no se duplican cada vez que se abre la app)
     suspend fun cargarSiEstaVacia(db: AppDatabase) {
         if (db.comunaDao().comunaContar() == 0) {
@@ -138,13 +218,14 @@ object DatosIniciales {
         }
     }
 
-    // El orden importa por las FK: comuna <- recinto <- usuario (encargados).
+    // El orden importa por las FK: comuna <- recinto <- usuario (encargados) y evento.
     // withTransaction: se guarda todo o nada; si algo falla, la BD no queda a medias.
     suspend fun cargar(db: AppDatabase) {
         db.withTransaction {
             db.comunaDao().comunaAlmacenarTodas(comunas)
             db.recintoDao().recintoAlmacenarTodos(recintos)
             db.usuarioDao().usuarioAlmacenarTodos(usuarios)
+            db.eventoDao().eventoAlmacenarTodos(eventos)
         }
     }
 }

@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
@@ -26,22 +27,26 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import cl.duoc.santiagosacro.view.AgendaScreen
 import cl.duoc.santiagosacro.view.BienvenidaScreen
 import cl.duoc.santiagosacro.view.EscanearScreen
+import cl.duoc.santiagosacro.view.EventoScreen
 import cl.duoc.santiagosacro.view.FichaScreen
 import cl.duoc.santiagosacro.view.InicioScreen
 import cl.duoc.santiagosacro.view.LoginScreen
+import cl.duoc.santiagosacro.view.MiRecintoScreen
 import cl.duoc.santiagosacro.view.PerfilScreen
 import cl.duoc.santiagosacro.view.VisitasScreen
 
 // Una pestaña de la barra inferior
 private data class Pestana(val ruta: String, val titulo: String, val icono: ImageVector)
 
-// Las 4 pantallas principales (se ven después del login)
+// Las 5 pantallas principales (se ven después del login)
 private val pestanas = listOf(
     Pestana(Rutas.INICIO, "Inicio", Icons.Filled.Home),
+    Pestana(Rutas.AGENDA, "Agenda", Icons.Filled.Event),
     Pestana(Rutas.ESCANEAR, "Escanear", Icons.Filled.QrCodeScanner),
-    Pestana(Rutas.VISITAS, "Mis visitas", Icons.Filled.History),
+    Pestana(Rutas.VISITAS, "Visitas", Icons.Filled.History),
     Pestana(Rutas.PERFIL, "Perfil", Icons.Filled.Person)
 )
 
@@ -53,7 +58,7 @@ fun AppNavigation() {
     val entradaActual by navController.currentBackStackEntryAsState()
     val rutaActual = entradaActual?.destination?.route
 
-    // La barra inferior solo aparece en las 4 pantallas principales
+    // La barra inferior solo aparece en las pantallas principales
     val mostrarBarra = pestanas.any { it.ruta == rutaActual }
 
     Scaffold(
@@ -89,14 +94,33 @@ fun AppNavigation() {
                 )
             }
             composable(Rutas.INICIO) {
-                InicioScreen(onAbrirRecinto = { id -> navController.navigate(Rutas.ficha(id)) })
+                InicioScreen(
+                    onAbrirRecinto = { id -> navController.navigate(Rutas.ficha(id)) },
+                    onAdministrarRecinto = { navController.navigate(Rutas.MI_RECINTO) }
+                )
             }
             composable(
                 route = Rutas.FICHA,
                 arguments = listOf(navArgument("recintoId") { type = NavType.LongType })
             ) {
                 // El recintoId lo lee FichaViewModel desde SavedStateHandle
-                FichaScreen(onVolver = { navController.popBackStack() })
+                FichaScreen(
+                    onVolver = { navController.popBackStack() },
+                    onAbrirEvento = { id -> navController.navigate(Rutas.evento(id)) }
+                )
+            }
+            composable(Rutas.AGENDA) {
+                AgendaScreen(onAbrirEvento = { id -> navController.navigate(Rutas.evento(id)) })
+            }
+            composable(
+                route = Rutas.EVENTO,
+                arguments = listOf(navArgument("eventoId") { type = NavType.LongType })
+            ) {
+                // El eventoId lo lee EventoViewModel desde SavedStateHandle
+                EventoScreen(
+                    onVolver = { navController.popBackStack() },
+                    onAbrirRecinto = { id -> navController.navigate(Rutas.ficha(id)) }
+                )
             }
             composable(Rutas.ESCANEAR) {
                 EscanearScreen(onRecintoEscaneado = { id -> navController.navigate(Rutas.ficha(id)) })
@@ -112,6 +136,12 @@ fun AppNavigation() {
                             popUpTo(navController.graph.id) { inclusive = true }
                         }
                     }
+                )
+            }
+            composable(Rutas.MI_RECINTO) {
+                MiRecintoScreen(
+                    onVolver = { navController.popBackStack() },
+                    onVerFicha = { id -> navController.navigate(Rutas.ficha(id)) }
                 )
             }
         }
