@@ -2,9 +2,10 @@ package cl.duoc.santiagosacro.database
 
 import android.content.Context
 import android.util.Log
-import androidx.room.Database
-import androidx.room.Room
-import androidx.room.RoomDatabase
+import androidx.room3.Database
+import androidx.room3.Room
+import androidx.room3.RoomDatabase
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import cl.duoc.santiagosacro.dao.ComunaDao
 import cl.duoc.santiagosacro.dao.EventoDao
 import cl.duoc.santiagosacro.dao.RecintoDao
@@ -43,6 +44,9 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "santiago_sacro.db"
                 )
+                    // Room 3 necesita un driver SQLite: usamos el que viene incluido en la app
+                    .setDriver(BundledSQLiteDriver())
+                    .setQueryCoroutineContext(Dispatchers.IO)
                     // Mientras desarrollamos: si cambia la versión, borra y recrea la BD
                     .fallbackToDestructiveMigration(true)
                     .build()

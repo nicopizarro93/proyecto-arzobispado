@@ -1,8 +1,8 @@
 package cl.duoc.santiagosacro.dao
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
+import androidx.room3.Dao
+import androidx.room3.Insert
+import androidx.room3.Query
 import cl.duoc.santiagosacro.model.Evento
 import cl.duoc.santiagosacro.model.EventoDetalle
 import kotlinx.coroutines.flow.Flow
