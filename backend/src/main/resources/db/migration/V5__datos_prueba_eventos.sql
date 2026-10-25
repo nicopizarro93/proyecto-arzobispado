@@ -6,8 +6,8 @@
 
 SET @capilla     = (SELECT id_recinto FROM recinto WHERE nombre_oficial = 'Capilla del Buen Pastor');
 SET @museo       = (SELECT id_recinto FROM recinto WHERE nombre_oficial = 'Museo de Arte Sacro Los Aromos');
-SET @enc_capilla = (SELECT id_usuario FROM usuario WHERE correo = 'encargado.capilla@santiagosacro.cl');
-SET @enc_museo   = (SELECT id_usuario FROM usuario WHERE correo = 'encargado.museo@santiagosacro.cl');
+SET @enc_capilla = (SELECT id_usuario FROM usuario WHERE correo = 'encargado.capilla@aurasacrapp.cl');
+SET @enc_museo   = (SELECT id_usuario FROM usuario WHERE correo = 'encargado.museo@aurasacrapp.cl');
 
 INSERT INTO evento (id_recinto, id_usuario_publica, tipo_evento, titulo, descripcion,
                     fecha_hora_inicio, fecha_hora_fin, estado) VALUES

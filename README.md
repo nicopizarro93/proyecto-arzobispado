@@ -1,4 +1,4 @@
-# Santiago Sacro
+# AuraSacrapp
 
 App móvil del caso **Red Patrimonial de Santiago** (Área de Cultura, Arzobispado de Santiago).
 DSY1105 Desarrollo de Aplicaciones Móviles · Duoc UC.
@@ -55,15 +55,15 @@ Todas usan la contraseña `Prueba123`.
 
 | Correo | Tipo de cuenta |
 |---|---|
-| `visitante@santiagosacro.cl` | Visitante |
-| `docente@santiagosacro.cl` | Docente |
-| `encargado.capilla@santiagosacro.cl` | Encargado de la Capilla del Buen Pastor |
-| `encargado.museo@santiagosacro.cl` | Encargado del Museo de Arte Sacro Los Aromos |
-| `admin@santiagosacro.cl` | Administrador |
+| `visitante@aurasacrapp.cl` | Visitante |
+| `docente@aurasacrapp.cl` | Docente |
+| `encargado.capilla@aurasacrapp.cl` | Encargado de la Capilla del Buen Pastor |
+| `encargado.museo@aurasacrapp.cl` | Encargado del Museo de Arte Sacro Los Aromos |
+| `admin@aurasacrapp.cl` | Administrador |
 
 ### Cómo probar el lector QR
 
-Los códigos están en `docs/qr` (también en un PDF para imprimir). Cada uno contiene el texto `santiagosacro:recinto:{id}`.
+Los códigos están en `docs/qr` (también en un PDF para imprimir). Cada uno contiene el texto `aurasacrapp:recinto:{id}`.
 
 1. En el emulador: **Extended controls (⋯) → Camera → Virtual scene images → Add image** y elegir, por ejemplo, `qr_01_capilla-del-buen-pastor.png`.
 2. En la app: pestaña **Escanear → Escanear código QR**.
@@ -74,7 +74,7 @@ Los códigos están en `docs/qr` (también en un PDF para imprimir). Cada uno co
 ### Arquitectura
 
 ```
-android/app/src/main/java/cl/duoc/santiagosacro/
+android/app/src/main/java/cl/duoc/aurasacrapp/
 ├── model/        Entidades de Room (Comuna, Recinto, Usuario, Visita, Evento) y resultados de consultas
 ├── dao/          Consultas de Room (@Query, @Insert, @Update)
 ├── database/     AppDatabase y datos iniciales
@@ -82,7 +82,7 @@ android/app/src/main/java/cl/duoc/santiagosacro/
 ├── viewmodel/    Estado (StateFlow) y lógica de cada pantalla
 ├── view/         Pantallas en Jetpack Compose
 ├── navigation/   Rutas y NavHost con la barra inferior
-├── ui/theme/     Colores y tipografía de Santiago Sacro
+├── ui/theme/     Colores y tipografía de AuraSacrapp
 └── util/         Hash de contraseñas, lectura de códigos QR y textos
 ```
 
@@ -100,7 +100,7 @@ En Android Studio: clic derecho en `app/src/test/java` → **Run 'Tests in…'**
 ```
    .\mvnw.cmd spring-boot:run
 ```
-3. Flyway crea la base `santiago_sacro` con sus tablas y datos de prueba al arrancar.
+3. Flyway crea la base `aura_sacrapp` con sus tablas y datos de prueba al arrancar.
 
 Pruebas del backend: `.\mvnw.cmd test`.
 

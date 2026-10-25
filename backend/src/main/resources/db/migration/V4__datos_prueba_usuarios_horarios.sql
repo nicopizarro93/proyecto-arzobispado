@@ -10,11 +10,11 @@ SET @museo     = (SELECT id_recinto FROM recinto WHERE nombre_oficial = 'Museo d
 
 -- Cuentas que en la app real crea el Administrador (CU-24). Hash BCrypt de "Prueba123".
 INSERT INTO usuario (rol, id_recinto, nombre, apellido, correo, password_hash) VALUES
-    ('ADMINISTRADOR', NULL,     'Ana',    'Rojas', 'admin@santiagosacro.cl',
+    ('ADMINISTRADOR', NULL,     'Ana',    'Rojas', 'admin@aurasacrapp.cl',
      '$2a$10$JIOeZDYRR7/30iROevj5TukVtifDs2N1AL91q6kOAji/ekN3ufdFC'),
-    ('ENCARGADO',     @capilla, 'Pedro',  'Soto',  'encargado.capilla@santiagosacro.cl',
+    ('ENCARGADO',     @capilla, 'Pedro',  'Soto',  'encargado.capilla@aurasacrapp.cl',
      '$2a$10$JIOeZDYRR7/30iROevj5TukVtifDs2N1AL91q6kOAji/ekN3ufdFC'),
-    ('ENCARGADO',     @museo,   'Carmen', 'Muñoz', 'encargado.museo@santiagosacro.cl',
+    ('ENCARGADO',     @museo,   'Carmen', 'Muñoz', 'encargado.museo@aurasacrapp.cl',
      '$2a$10$JIOeZDYRR7/30iROevj5TukVtifDs2N1AL91q6kOAji/ekN3ufdFC');
 
 -- Horarios regulares (1 = lunes ... 7 = domingo). Un día puede tener dos bloques.

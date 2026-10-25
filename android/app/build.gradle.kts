@@ -5,13 +5,13 @@ plugins {
 }
 
 android {
-    namespace = "cl.duoc.santiagosacro"
+    namespace = "cl.duoc.aurasacrapp"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "cl.duoc.santiagosacro"
+        applicationId = "cl.duoc.aurasacrapp"
         minSdk = 36
         targetSdk = 37
         versionCode = 1
@@ -58,10 +58,11 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     // Íconos de Material (mapa, eventos, rutas...)
     implementation(libs.androidx.compose.material.icons.extended)
-    // Room: base de datos local. KSP genera el código de los DAO al compilar.
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx)
-    ksp(libs.androidx.room.compiler)
+    // Room 3: base de datos local. KSP genera el código de los DAO al compilar.
+    // sqlite-bundled es el driver SQLite que Room 3 necesita para abrir la BD.
+    implementation(libs.androidx.room3.runtime)
+    implementation(libs.androidx.sqlite.bundled)
+    ksp(libs.androidx.room3.compiler)
     // ML Kit: lector de códigos QR de Google (la cámara la maneja Google Play Services)
     implementation(libs.play.services.code.scanner)
 }

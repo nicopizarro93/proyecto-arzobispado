@@ -22,5 +22,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Santiago Sacro"
+rootProject.name = "AuraSacrapp"
 include(":app")

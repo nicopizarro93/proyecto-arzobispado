@@ -1,0 +1,55 @@
+package cl.duoc.aurasacrapp_api.visita;
+
+import cl.duoc.aurasacrapp_api.visita.dto.CambioVisitaRequest;
+import cl.duoc.aurasacrapp_api.visita.dto.VisitaDto;
+import cl.duoc.aurasacrapp_api.visita.dto.VisitaRequest;
+import jakarta.validation.Valid;
+
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.*;
+
+/** Visitas de visitantes y docentes (HU-21, HU-22, HU-25). */
+@RestController
+@RequestMapping("/api/visitas")
+public class VisitaController {
+
+    private final VisitaService visitaService;
+
+    public VisitaController(VisitaService visitaService) {
+        this.visitaService = visitaService;
+    }
+
+    // POST /api/visitas → 201 con la visita agendada
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public VisitaDto agendar(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody VisitaRequest solicitud) {
+        return visitaService.agendar(idUsuario(jwt), solicitud);
+    }
+
+    // GET /api/visitas → mis visitas
+    @GetMapping
+    public List<VisitaDto> misVisitas(@AuthenticationPrincipal Jwt jwt) {
+        return visitaService.misVisitas(idUsuario(jwt));
+    }
+
+    // PUT /api/visitas/4 → cambia fecha, hora y cantidad de personas
+    @PutMapping("/{id}")
+    public VisitaDto cambiar(@AuthenticationPrincipal Jwt jwt, @PathVariable("id") Long id,
+                             @Valid @RequestBody CambioVisitaRequest solicitud) {
+        return visitaService.cambiar(idUsuario(jwt), id, solicitud);
+    }
+
+    // PATCH /api/visitas/4/cancelar → estado CANCELADA (y sus solicitudes de guía)
+    @PatchMapping("/{id}/cancelar")
+    public VisitaDto cancelar(@AuthenticationPrincipal Jwt jwt, @PathVariable("id") Long id) {
+        return visitaService.cancelar(idUsuario(jwt), id);
+    }    
+
+    private Long idUsuario(Jwt jwt) {
+        return Long.valueOf(jwt.getSubject());
+    }
+}
