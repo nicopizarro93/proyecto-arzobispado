@@ -36,12 +36,6 @@ fun formatearDuracion(minutos: Int): String {
     return if (resto == 0) "$horas h" else "$horas h $resto min"
 }
 
-// Para la etiqueta de fecha de los eventos: "28" y "OCT"
-fun diaDelMes(millis: Long): String = aFecha(millis).dayOfMonth.toString()
-
-fun mesCorto(millis: Long): String =
-    aFecha(millis).format(DateTimeFormatter.ofPattern("MMM", espanolChile)).replace(".", "").uppercase()
-
 fun formatearHora(millis: Long): String = aFecha(millis).format(DateTimeFormatter.ofPattern("HH:mm"))
 
 // "Jueves 29 de octubre · 19:00 a 20:30", o "Del 25 oct al 2 dic" si dura varios días

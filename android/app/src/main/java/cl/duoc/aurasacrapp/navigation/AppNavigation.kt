@@ -1,5 +1,7 @@
 package cl.duoc.aurasacrapp.navigation
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
@@ -19,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -64,6 +67,7 @@ private val pestanas = listOf(
 fun AppNavigation() {
     // El navController guarda el historial de pantallas y sabe navegar entre ellas
     val navController = rememberNavController()
+    val context = LocalContext.current
     val entradaActual by navController.currentBackStackEntryAsState()
     val rutaActual = entradaActual?.destination?.route
 
@@ -108,7 +112,10 @@ fun AppNavigation() {
             }
             composable(Rutas.REGISTRO) {
                 RegistroScreen(
-                    onCuentaCreada = { irAlLogin(navController) },
+                    onCuentaCreada = {
+                        avisar(context, "Cuenta creada")
+                        irAlLogin(navController)
+                    },
                     onIrALogin = { irAlLogin(navController) },
                     onVolver = { navController.popBackStack() }
                 )
@@ -142,7 +149,10 @@ fun AppNavigation() {
                 route = Rutas.PLANIFICAR,
                 arguments = listOf(navArgument("recintoId") { type = NavType.LongType })
             ) {
-                PlanificarVisitaScreen(onVolver = { navController.popBackStack() })
+                PlanificarVisitaScreen(
+                    onVolver = { navController.popBackStack() },
+                    onGuardar = { avisarYVolver(navController, context, "Visita agendada") }
+                )
             }
             composable(Rutas.RUTAS) {
                 RutasScreen(
@@ -152,7 +162,10 @@ fun AppNavigation() {
                 )
             }
             composable(Rutas.CREAR_RUTA) {
-                CrearRutaScreen(onVolver = { navController.popBackStack() })
+                CrearRutaScreen(
+                    onVolver = { navController.popBackStack() },
+                    onGuardar = { avisarYVolver(navController, context, "Ruta guardada") }
+                )
             }
             composable(
                 route = Rutas.RUTA,
@@ -203,13 +216,19 @@ fun AppNavigation() {
                 )
             }
             composable(Rutas.EDITAR_FICHA) {
-                EditarFichaScreen(onVolver = { navController.popBackStack() })
+                EditarFichaScreen(
+                    onVolver = { navController.popBackStack() },
+                    onGuardar = { avisarYVolver(navController, context, "Cambios guardados") }
+                )
             }
             composable(Rutas.GUIAS) {
                 GuiasScreen(onVolver = { navController.popBackStack() })
             }
             composable(Rutas.PUBLICAR_EVENTO) {
-                PublicarEventoScreen(onVolver = { navController.popBackStack() })
+                PublicarEventoScreen(
+                    onVolver = { navController.popBackStack() },
+                    onGuardar = { avisarYVolver(navController, context, "Evento publicado") }
+                )
             }
         }
     }
@@ -249,4 +268,14 @@ private fun navegarAPestana(navController: NavHostController, ruta: String) {
         launchSingleTop = true                       // no duplica la pantalla si ya estás en ella
         restoreState = true                          // la pestaña vuelve como la dejaste
     }
+}
+
+// Los formularios son solo visuales: al guardar se muestra un aviso corto y se vuelve atrás
+private fun avisarYVolver(navController: NavHostController, context: Context, mensaje: String) {
+    avisar(context, mensaje)
+    navController.popBackStack()
+}
+
+private fun avisar(context: Context, mensaje: String) {
+    Toast.makeText(context, mensaje, Toast.LENGTH_SHORT).show()
 }
