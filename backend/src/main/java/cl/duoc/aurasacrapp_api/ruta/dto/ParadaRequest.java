@@ -1,0 +1,35 @@
+package cl.duoc.aurasacrapp_api.ruta.dto;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+
+/** Una parada pedida por la app: el recinto y los minutos de visita (30 si no se indican). */
+public record ParadaRequest(
+        @NotNull(message = "El recinto es obligatorio") Long idRecinto,
+        @Min(value = 5, message = "La visita dura al menos 5 minutos")
+        @Max(value = 480, message = "La visita dura como máximo 480 minutos") Integer tiempoVisitaMin) {
+
+    public static final int MINUTOS_POR_DEFECTO = 30;
+
+    public ParadaRequest {
+        tiempoVisitaMin = tiempoVisitaMin == null ? MINUTOS_POR_DEFECTO : tiempoVisitaMin;
+    }
+
+    /** HU-18: una ruta no repite recintos. Lo usan la estimación y las rutas guardadas. */
+    public static boolean sinRecintosRepetidos(List<ParadaRequest> paradas) {
+        if (paradas == null) {
+            return true;
+        }
+        List<Long> ids = paradas.stream()
+                .filter(Objects::nonNull)
+                .map(ParadaRequest::idRecinto)
+                .filter(Objects::nonNull)
+                .toList();
+        return ids.size() == new HashSet<>(ids).size();
+    }    
+}

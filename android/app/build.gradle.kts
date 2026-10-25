@@ -5,13 +5,13 @@ plugins {
 }
 
 android {
-    namespace = "cl.duoc.santiagosacro"
+    namespace = "cl.duoc.aurasacrapp"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "cl.duoc.santiagosacro"
+        applicationId = "cl.duoc.aurasacrapp"
         minSdk = 36
         targetSdk = 37
         versionCode = 1

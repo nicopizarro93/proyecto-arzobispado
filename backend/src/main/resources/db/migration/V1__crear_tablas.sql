@@ -1,5 +1,5 @@
 -- =============================================================================
--- V1 - Crea las tablas, índices y vistas de Santiago Sacro (MySQL 8.4).
+-- V1 - Crea las tablas, índices y vistas de AuraSacrapp (MySQL 8.4).
 -- Flyway ejecuta este archivo una sola vez, al arrancar la API.
 -- NO editar después de ejecutado: los cambios van en una migración nueva
 -- (V3__..., V4__...). Modelo documentado en ddl_red_patrimonial_mysql.sql.

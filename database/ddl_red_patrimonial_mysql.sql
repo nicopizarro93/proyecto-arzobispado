@@ -1,5 +1,5 @@
 -- =============================================================================
---  Proyecto    : App móvil Santiago Sacro - caso Red Patrimonial de Santiago
+--  Proyecto    : App móvil AuraSacrapp - caso Red Patrimonial de Santiago
 --                (Área de Cultura, Arzobispado de Santiago)
 --  Asignatura  : DSY1105 Desarrollo de Aplicaciones Móviles - Duoc UC
 --  Integrantes : Alexis Acuña, Nicolás Pizarro
@@ -61,7 +61,7 @@
 --    - En la API, Flyway crea las tablas al arrancar (migraciones V1 y V2, con
 --      el mismo contenido de este script sin la sección 0).
 --    - A mano: en phpMyAdmin, pestaña SQL, pegar y ejecutar el script completo.
---      Ojo: la sección 0 borra la base santiago_sacro si ya existe.
+--      Ojo: la sección 0 borra la base aura_sacrapp si ya existe.
 --
 --  NOTA: La app guarda en el teléfono (Room) solo la sesión, los favoritos, las
 --        rutas creadas sin cuenta y una copia de las fichas para usarlas sin
@@ -73,9 +73,9 @@
 -- 0. BASE DE DATOS Y LIMPIEZA
 -- =============================================================================
 
-DROP DATABASE IF EXISTS santiago_sacro;
-CREATE DATABASE santiago_sacro CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
-USE santiago_sacro;
+DROP DATABASE IF EXISTS aura_sacrapp;
+CREATE DATABASE aura_sacrapp CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+USE aura_sacrapp;
 
 -- =============================================================================
 -- 1. CATÁLOGO

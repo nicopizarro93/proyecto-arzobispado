@@ -2,7 +2,7 @@
 -- V7 - Datos de prueba: rutas sugeridas con sus paradas (HU-17, HU-19).
 -- =============================================================================
 
-SET @admin      = (SELECT id_usuario FROM usuario WHERE correo = 'admin@santiagosacro.cl');
+SET @admin      = (SELECT id_usuario FROM usuario WHERE correo = 'admin@aurasacrapp.cl');
 SET @capilla    = (SELECT id_recinto FROM recinto WHERE nombre_oficial = 'Capilla del Buen Pastor');
 SET @san_lucas  = (SELECT id_recinto FROM recinto WHERE nombre_oficial = 'Templo San Lucas del Llano');
 SET @museo      = (SELECT id_recinto FROM recinto WHERE nombre_oficial = 'Museo de Arte Sacro Los Aromos');

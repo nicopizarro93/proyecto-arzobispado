@@ -4,13 +4,13 @@
 -- =============================================================================
 
 INSERT INTO usuario (rol, nombre, apellido, correo, password_hash, institucion, fecha_acepta_privacidad) VALUES
-    ('VISITANTE', 'Lucía', 'Herrera', 'visitante@santiagosacro.cl',
+    ('VISITANTE', 'Lucía', 'Herrera', 'visitante@aurasacrapp.cl',
      '$2a$10$JIOeZDYRR7/30iROevj5TukVtifDs2N1AL91q6kOAji/ekN3ufdFC', NULL, NOW()),
-    ('DOCENTE', 'Jorge', 'Contreras', 'docente@santiagosacro.cl',
+    ('DOCENTE', 'Jorge', 'Contreras', 'docente@aurasacrapp.cl',
      '$2a$10$JIOeZDYRR7/30iROevj5TukVtifDs2N1AL91q6kOAji/ekN3ufdFC', 'Colegio San Esteban', NOW());
 
-SET @visitante  = (SELECT id_usuario FROM usuario WHERE correo = 'visitante@santiagosacro.cl');
-SET @docente    = (SELECT id_usuario FROM usuario WHERE correo = 'docente@santiagosacro.cl');
+SET @visitante  = (SELECT id_usuario FROM usuario WHERE correo = 'visitante@aurasacrapp.cl');
+SET @docente    = (SELECT id_usuario FROM usuario WHERE correo = 'docente@aurasacrapp.cl');
 SET @capilla    = (SELECT id_recinto FROM recinto WHERE nombre_oficial = 'Capilla del Buen Pastor');
 SET @museo      = (SELECT id_recinto FROM recinto WHERE nombre_oficial = 'Museo de Arte Sacro Los Aromos');
 SET @ruta_llano = (SELECT id_ruta FROM ruta WHERE nombre = 'Ruta del Llano de Maipú');
