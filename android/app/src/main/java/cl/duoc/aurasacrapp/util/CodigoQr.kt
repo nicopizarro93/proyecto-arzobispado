@@ -13,7 +13,4 @@ object CodigoQr {
         val id = limpio.substring(PREFIJO.length).toLongOrNull() ?: return null
         return if (id > 0) id else null
     }
-
-    // Arma el texto que va dentro del QR de un recinto
-    fun crear(recintoId: Long): String = "$PREFIJO$recintoId"
 }
