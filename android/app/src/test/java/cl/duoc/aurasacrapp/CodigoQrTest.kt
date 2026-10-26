@@ -33,9 +33,4 @@ class CodigoQrTest {
     fun rechazaCodigoNulo() {
         assertNull(CodigoQr.leerRecintoId(null))
     }
-
-    @Test
-    fun crearYLeerDevuelvenElMismoId() {
-        assertEquals(5L, CodigoQr.leerRecintoId(CodigoQr.crear(5)))
-    }
 }

@@ -54,7 +54,7 @@ class InicioViewModel(application: Application) : AndroidViewModel(application) 
         }
         // Si quien inició sesión es encargado, se busca su recinto para mostrarle el acceso a "Mi recinto"
         val recintoACargo = if (usuario?.rol == Rol.ENCARGADO) {
-            recintos.find { it.id == usuario?.recintoId }
+            recintos.find { it.id == usuario.recintoId }
         } else {
             null
         }

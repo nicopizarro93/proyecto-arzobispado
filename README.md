@@ -90,7 +90,7 @@ Flujo de los datos: **View → ViewModel → Repository → DAO → Room**. Las 
 
 ### Pruebas unitarias
 
-En Android Studio: clic derecho en `app/src/test/java` → **Run 'Tests in…'** (12 pruebas: lector QR, búsqueda sin tildes y cálculo de tiempos de las rutas).
+En Android Studio: clic derecho en `app/src/test/java` → **Run 'Tests in…'** (11 pruebas: lector QR, búsqueda sin tildes y cálculo de tiempos de las rutas).
 
 ## Cómo ejecutar el backend
 

@@ -55,10 +55,6 @@ class EscanearViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun onErrorEscaner(mensaje: String) {
-        _uiState.update { it.copy(error = mensaje) }
-    }
-
     fun limpiarError() {
         _uiState.update { it.copy(error = null) }
     }
