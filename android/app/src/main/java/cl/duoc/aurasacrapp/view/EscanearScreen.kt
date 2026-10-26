@@ -1,6 +1,5 @@
 package cl.duoc.aurasacrapp.view
 
-import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -17,12 +16,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cl.duoc.aurasacrapp.view.componentes.Encabezado
 import cl.duoc.aurasacrapp.viewmodel.EscanearViewModel
@@ -30,14 +30,26 @@ import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
 
-// Escanear el QR de un recinto para registrar la visita y abrir su ficha
+// Escanear el QR de un recinto para registrar la visita y abrir su ficha.
+// La cámara la maneja Google Play Services (ML Kit), por eso no se pide el permiso de cámara.
 @Composable
 fun EscanearScreen(
     onRecintoEscaneado: (Long) -> Unit,
     viewModel: EscanearViewModel = viewModel()
 ) {
-    val estado by viewModel.uiState.collectAsState()
     val context = LocalContext.current
+    val estado by viewModel.uiState.collectAsStateWithLifecycle()
+
+    // Solo códigos QR
+    val opciones = remember {
+        GmsBarcodeScannerOptions.Builder()
+            .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
+            .build()
+    }
+
+    val scanner = remember(context, opciones) {
+        GmsBarcodeScanning.getClient(context, opciones)
+    }
 
     // Cuando la visita queda registrada: aviso corto y se abre la ficha del recinto
     LaunchedEffect(estado.recintoRegistrado) {
@@ -71,7 +83,16 @@ fun EscanearScreen(
         Button(
             onClick = {
                 viewModel.limpiarError()
-                iniciarEscaneo(context, viewModel)
+                scanner.startScan()
+                    .addOnSuccessListener { barcode ->
+                        viewModel.procesarCodigo(barcode.rawValue.orEmpty())
+                    }
+                    .addOnCanceledListener {
+                        // Escaneo cancelado: no se hace nada
+                    }
+                    .addOnFailureListener { error ->
+                        Toast.makeText(context, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
+                    }
             },
             enabled = !estado.procesando,
             modifier = Modifier.fillMaxWidth()
@@ -84,21 +105,4 @@ fun EscanearScreen(
             Text(text = mensaje, color = MaterialTheme.colorScheme.error)
         }
     }
-}
-
-// Abre el lector de códigos de Google (ML Kit). La cámara la maneja Google Play Services,
-// por eso la app no necesita pedir el permiso de cámara.
-private fun iniciarEscaneo(context: Context, viewModel: EscanearViewModel) {
-    val opciones = GmsBarcodeScannerOptions.Builder()
-        .setBarcodeFormats(Barcode.FORMAT_QR_CODE)   // solo códigos QR
-        .enableAutoZoom()                            // acerca la imagen si el código está lejos
-        .build()
-
-    GmsBarcodeScanning.getClient(context, opciones)
-        .startScan()
-        .addOnSuccessListener { codigo -> viewModel.procesarCodigo(codigo.rawValue) }
-        .addOnCanceledListener { /* el usuario cerró la cámara: no se hace nada */ }
-        .addOnFailureListener { e ->
-            viewModel.onErrorEscaner("No se pudo abrir el lector QR (${e.localizedMessage ?: "error desconocido"}).")
-        }
 }

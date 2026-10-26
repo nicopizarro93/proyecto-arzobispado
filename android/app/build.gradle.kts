@@ -55,6 +55,7 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     // ViewModel en Compose y navegación entre pantallas
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.navigation.compose)
     // Íconos de Material (mapa, eventos, rutas...)
     implementation(libs.androidx.compose.material.icons.extended)
