@@ -1,25 +1,108 @@
 package cl.duoc.aurasacrapp.repository
 
+import cl.duoc.aurasacrapp.model.BloqueDisponibilidad
 import cl.duoc.aurasacrapp.model.Guia
-import cl.duoc.aurasacrapp.model.SolicitudGuia
+import cl.duoc.aurasacrapp.model.SolicitudRecinto
+import cl.duoc.aurasacrapp.model.SolicitudUsuario
+import cl.duoc.aurasacrapp.remote.EncargadoApi
+import cl.duoc.aurasacrapp.remote.RetrofitClient
+import cl.duoc.aurasacrapp.remote.VisitaApi
+import cl.duoc.aurasacrapp.remote.dto.AsignarGuiaRequest
+import cl.duoc.aurasacrapp.remote.dto.DisponibilidadRequest
+import cl.duoc.aurasacrapp.remote.dto.GuiaActivoRequest
+import cl.duoc.aurasacrapp.remote.dto.GuiaDto
+import cl.duoc.aurasacrapp.remote.dto.GuiaRequest
+import cl.duoc.aurasacrapp.remote.dto.RechazarSolicitudRequest
+import cl.duoc.aurasacrapp.remote.dto.SolicitudGuiaRequest
+import cl.duoc.aurasacrapp.remote.dto.SolicitudRecintoDto
+import cl.duoc.aurasacrapp.remote.dto.SolicitudUsuarioDto
+import cl.duoc.aurasacrapp.util.isoAMillis
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
-// Guías y solicitudes de guía. En esta entrega son datos fijos; en la prueba 3 vendrán del backend.
-object GuiaRepository {
+// Guías y solicitudes de guía. Todo vive en el backend:
+// - el encargado administra los guías de su recinto y responde las solicitudes;
+// - el visitante o el docente pide un guía para su visita y ve cómo va la solicitud.
+class GuiaRepository(
+    private val encargadoApi: EncargadoApi = RetrofitClient.encargadoApi,
+    private val visitaApi: VisitaApi = RetrofitClient.visitaApi
+) {
 
-    private val guias = listOf(
-        Guia(1, 1, "Marta", "Díaz", listOf("Sábado 10:00 a 13:00", "Domingo 09:00 a 12:00")),
-        Guia(2, 1, "José", "Fuentes", listOf("Martes 16:00 a 19:00", "Jueves 16:00 a 19:00")),
-        Guia(3, 3, "Rosa", "Pérez", listOf("Miércoles 10:00 a 14:00", "Viernes 10:00 a 14:00")),
-        Guia(4, 3, "Tomás", "Vera", listOf("Sábado 11:00 a 17:00"))
+    // ---- Encargado: guías y disponibilidad ----
+
+    suspend fun guias(): List<Guia> = encargadoApi.guias().map { it.aModelo() }
+
+    suspend fun crearGuia(nombre: String, apellido: String): Guia =
+        encargadoApi.crearGuia(GuiaRequest(nombre.trim(), apellido.trim())).aModelo()
+
+    suspend fun cambiarActivo(guiaId: Long, activo: Boolean): Guia =
+        encargadoApi.cambiarGuiaActivo(guiaId, GuiaActivoRequest(activo)).aModelo()
+
+    suspend fun agregarDisponibilidad(guiaId: Long, inicio: LocalDateTime, fin: LocalDateTime): Guia =
+        encargadoApi.agregarDisponibilidad(
+            guiaId, DisponibilidadRequest(FECHA_HORA.format(inicio), FECHA_HORA.format(fin))
+        ).aModelo()
+
+    suspend fun eliminarDisponibilidad(guiaId: Long, bloqueId: Long): Guia =
+        encargadoApi.eliminarDisponibilidad(guiaId, bloqueId).aModelo()
+
+    // ---- Encargado: solicitudes ----
+
+    suspend fun solicitudesDelRecinto(): List<SolicitudRecinto> =
+        encargadoApi.solicitudesGuia().map { it.aModelo() }
+
+    // Los guías activos que están disponibles en el horario de esa solicitud
+    suspend fun guiasDisponibles(solicitudId: Long): List<Guia> =
+        encargadoApi.guiasDisponibles(solicitudId).map { it.aModelo() }
+
+    suspend fun asignar(solicitudId: Long, guiaId: Long) {
+        encargadoApi.asignarGuia(solicitudId, AsignarGuiaRequest(guiaId))
+    }
+
+    suspend fun rechazar(solicitudId: Long, motivo: String) {
+        encargadoApi.rechazarSolicitud(solicitudId, RechazarSolicitudRequest(motivo.trim()))
+    }
+
+    // ---- Visitante o docente ----
+
+    suspend fun solicitarGuia(visitaId: Long, recintoId: Long) {
+        visitaApi.solicitarGuia(visitaId, SolicitudGuiaRequest(recintoId))
+    }
+
+    suspend fun misSolicitudes(): List<SolicitudUsuario> = visitaApi.misSolicitudesGuia().map { it.aModelo() }
+
+    // ---- Conversión de los datos del backend ----
+
+    private fun GuiaDto.aModelo() = Guia(
+        id = id,
+        nombre = nombre,
+        apellido = apellido,
+        activo = activo,
+        disponibilidad = disponibilidad.map { BloqueDisponibilidad(it.id, isoAMillis(it.inicio), isoAMillis(it.fin)) }
     )
 
-    private val solicitudes = listOf(
-        SolicitudGuia(1, 1, "Colegio San Esteban", "3° básico B", "Martes 3 de noviembre · 10:00", 32),
-        SolicitudGuia(2, 1, "Liceo Poeta Neruda", "1° medio A", "Jueves 12 de noviembre · 11:30", 28),
-        SolicitudGuia(3, 3, "Colegio San Esteban", "6° básico A", "Viernes 6 de noviembre · 10:30", 30)
+    private fun SolicitudRecintoDto.aModelo() = SolicitudRecinto(
+        id = id,
+        estado = estado,
+        inicio = isoAMillis(inicio),
+        personas = cantidadPersonas,
+        curso = nivelCurso,
+        solicitante = solicitante,
+        institucion = institucion,
+        guia = guia,
+        motivoRechazo = motivoRechazo
     )
 
-    fun guiasDe(recintoId: Long): List<Guia> = guias.filter { it.recintoId == recintoId }
+    private fun SolicitudUsuarioDto.aModelo() = SolicitudUsuario(
+        id = id,
+        visitaId = idVisita,
+        recinto = recinto,
+        estado = estado,
+        guia = guia,
+        motivoRechazo = motivoRechazo
+    )
 
-    fun solicitudesDe(recintoId: Long): List<SolicitudGuia> = solicitudes.filter { it.recintoId == recintoId }
+    private companion object {
+        val FECHA_HORA: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
+    }
 }

@@ -6,7 +6,10 @@ import cl.duoc.aurasacrapp.model.Usuario
 import cl.duoc.aurasacrapp.remote.AuthApi
 import cl.duoc.aurasacrapp.remote.EncargadoApi
 import cl.duoc.aurasacrapp.remote.RetrofitClient
+import cl.duoc.aurasacrapp.remote.UsuarioApi
+import cl.duoc.aurasacrapp.remote.dto.CambioPasswordRequest
 import cl.duoc.aurasacrapp.remote.dto.LoginRequest
+import cl.duoc.aurasacrapp.remote.dto.PerfilRequest
 import cl.duoc.aurasacrapp.remote.dto.RegistroRequest
 
 // Repositorio: la única puerta de entrada a los datos de usuarios.
@@ -15,7 +18,8 @@ import cl.duoc.aurasacrapp.remote.dto.RegistroRequest
 class UsuarioRepository(
     private val usuarioDao: UsuarioDao,
     private val authApi: AuthApi = RetrofitClient.authApi,
-    private val encargadoApi: EncargadoApi = RetrofitClient.encargadoApi
+    private val encargadoApi: EncargadoApi = RetrofitClient.encargadoApi,
+    private val usuarioApi: UsuarioApi = RetrofitClient.usuarioApi
 ) {
 
     // Inicia sesión en el backend, guarda el usuario y deja la sesión abierta
@@ -47,5 +51,21 @@ class UsuarioRepository(
     // Crea la cuenta en el backend (la contraseña la cifra el servidor con BCrypt)
     suspend fun registrar(solicitud: RegistroRequest) {
         authApi.registrar(solicitud)
+    }
+
+    // Cambia el nombre, el apellido y (si es docente) la institución en el backend; después se
+    // actualizan Room y la sesión, para que toda la app muestre los datos nuevos
+    suspend fun actualizarPerfil(nombre: String, apellido: String, institucion: String?): Usuario {
+        val actual = checkNotNull(SesionRepository.usuario.value) { "No hay sesión iniciada" }
+        val dto = usuarioApi.actualizarPerfil(PerfilRequest(nombre.trim(), apellido.trim(), institucion?.trim()))
+        val nuevo = actual.copy(nombre = dto.nombre, apellido = dto.apellido, institucion = dto.institucion)
+        usuarioDao.usuarioGuardar(nuevo)
+        SesionRepository.actualizarUsuario(nuevo)
+        return nuevo
+    }
+
+    // El backend pide la contraseña actual y guarda la nueva cifrada con BCrypt
+    suspend fun cambiarPassword(passwordActual: String, passwordNueva: String, confirmarPassword: String) {
+        usuarioApi.cambiarPassword(CambioPasswordRequest(passwordActual, passwordNueva, confirmarPassword))
     }
 }

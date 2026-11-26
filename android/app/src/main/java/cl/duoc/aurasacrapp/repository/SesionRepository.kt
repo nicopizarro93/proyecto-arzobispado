@@ -72,6 +72,12 @@ object SesionRepository {
             ?.apply()
     }
 
+    // El usuario cambió sus datos (nombre, apellido, institución): se actualizan en memoria y en
+    // las preferencias, sin tocar el token
+    fun actualizarUsuario(usuario: Usuario) {
+        token?.let { iniciar(usuario, it) }
+    }
+
     fun cerrar() {
         token = null
         _usuario.value = null

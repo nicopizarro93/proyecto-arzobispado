@@ -39,6 +39,7 @@ import cl.duoc.aurasacrapp.view.EditarFichaScreen
 import cl.duoc.aurasacrapp.view.EscanearScreen
 import cl.duoc.aurasacrapp.view.EventoScreen
 import cl.duoc.aurasacrapp.view.FichaScreen
+import cl.duoc.aurasacrapp.view.GuiaDisponibilidadScreen
 import cl.duoc.aurasacrapp.view.GuiasScreen
 import cl.duoc.aurasacrapp.view.InicioScreen
 import cl.duoc.aurasacrapp.view.LoginScreen
@@ -247,7 +248,17 @@ fun AppNavigation() {
                 EditarFichaScreen(onVolver = { navController.popBackStack() })
             }
             composable(Rutas.GUIAS) {
-                GuiasScreen(onVolver = { navController.popBackStack() })
+                GuiasScreen(
+                    onVolver = { navController.popBackStack() },
+                    onDisponibilidad = { id -> navController.navigate(Rutas.guiaDisponibilidad(id)) }
+                )
+            }
+            composable(
+                route = Rutas.GUIA_DISPONIBILIDAD,
+                arguments = listOf(navArgument("guiaId") { type = NavType.LongType })
+            ) {
+                // El guiaId lo lee GuiaDisponibilidadViewModel desde SavedStateHandle
+                GuiaDisponibilidadScreen(onVolver = { navController.popBackStack() })
             }
             composable(Rutas.MIS_EVENTOS) {
                 MisEventosScreen(

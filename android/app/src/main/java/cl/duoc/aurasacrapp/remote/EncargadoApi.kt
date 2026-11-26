@@ -1,5 +1,12 @@
 package cl.duoc.aurasacrapp.remote
 
+import cl.duoc.aurasacrapp.remote.dto.AsignarGuiaRequest
+import cl.duoc.aurasacrapp.remote.dto.DisponibilidadRequest
+import cl.duoc.aurasacrapp.remote.dto.GuiaActivoRequest
+import cl.duoc.aurasacrapp.remote.dto.GuiaDto
+import cl.duoc.aurasacrapp.remote.dto.GuiaRequest
+import cl.duoc.aurasacrapp.remote.dto.RechazarSolicitudRequest
+import cl.duoc.aurasacrapp.remote.dto.SolicitudRecintoDto
 import cl.duoc.aurasacrapp.remote.dto.CambioEstadoRequest
 import cl.duoc.aurasacrapp.remote.dto.EventoGestionDto
 import cl.duoc.aurasacrapp.remote.dto.EventoRequest
@@ -58,4 +65,34 @@ interface EncargadoApi {
 
     @PATCH("api/encargado/recinto/eventos/{id}/cancelar")
     suspend fun cancelarEvento(@Path("id") id: Long): EventoGestionDto
+
+    // ---- Guías (HU-32) y solicitudes de guía (HU-33) ----
+
+    @GET("api/encargado/recinto/guias")
+    suspend fun guias(): List<GuiaDto>
+
+    @POST("api/encargado/recinto/guias")
+    suspend fun crearGuia(@Body solicitud: GuiaRequest): GuiaDto
+
+    @PATCH("api/encargado/recinto/guias/{id}/activo")
+    suspend fun cambiarGuiaActivo(@Path("id") id: Long, @Body solicitud: GuiaActivoRequest): GuiaDto
+
+    @POST("api/encargado/recinto/guias/{id}/disponibilidad")
+    suspend fun agregarDisponibilidad(@Path("id") id: Long, @Body solicitud: DisponibilidadRequest): GuiaDto
+
+    @DELETE("api/encargado/recinto/guias/{id}/disponibilidad/{idBloque}")
+    suspend fun eliminarDisponibilidad(@Path("id") id: Long, @Path("idBloque") idBloque: Long): GuiaDto
+
+    @GET("api/encargado/recinto/solicitudes-guia")
+    suspend fun solicitudesGuia(): List<SolicitudRecintoDto>
+
+    // Guías activos que están disponibles en el horario de la solicitud
+    @GET("api/encargado/recinto/solicitudes-guia/{id}/guias-disponibles")
+    suspend fun guiasDisponibles(@Path("id") id: Long): List<GuiaDto>
+
+    @PATCH("api/encargado/recinto/solicitudes-guia/{id}/asignar")
+    suspend fun asignarGuia(@Path("id") id: Long, @Body solicitud: AsignarGuiaRequest): SolicitudRecintoDto
+
+    @PATCH("api/encargado/recinto/solicitudes-guia/{id}/rechazar")
+    suspend fun rechazarSolicitud(@Path("id") id: Long, @Body solicitud: RechazarSolicitudRequest): SolicitudRecintoDto
 }

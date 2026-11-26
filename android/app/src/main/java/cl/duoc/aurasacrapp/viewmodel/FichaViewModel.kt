@@ -6,12 +6,10 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import cl.duoc.aurasacrapp.database.AppDatabase
 import cl.duoc.aurasacrapp.model.EventoDetalle
-import cl.duoc.aurasacrapp.model.Guia
 import cl.duoc.aurasacrapp.model.Horario
 import cl.duoc.aurasacrapp.model.RecintoConComuna
 import cl.duoc.aurasacrapp.model.Rol
 import cl.duoc.aurasacrapp.repository.EventoRepository
-import cl.duoc.aurasacrapp.repository.GuiaRepository
 import cl.duoc.aurasacrapp.repository.RecintoRepository
 import cl.duoc.aurasacrapp.repository.SesionRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,7 +24,6 @@ data class FichaUiState(
     val recinto: RecintoConComuna? = null,
     val eventos: List<EventoDetalle> = emptyList(),
     val horarios: List<Horario> = emptyList(),
-    val guias: List<Guia> = emptyList(),
     val esDocente: Boolean = false,       // el docente ve campos extra al planificar la visita
     val puedePlanificar: Boolean = false  // solo visitantes y docentes agendan visitas
 )
@@ -67,7 +64,6 @@ class FichaViewModel(
             recinto = recinto,
             eventos = eventos,
             horarios = horariosSemana,
-            guias = GuiaRepository.guiasDe(recintoId),
             esDocente = usuario?.rol == Rol.DOCENTE,
             puedePlanificar = usuario?.rol == Rol.VISITANTE || usuario?.rol == Rol.DOCENTE
         )

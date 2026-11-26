@@ -1,5 +1,7 @@
 package cl.duoc.aurasacrapp.remote
 
+import cl.duoc.aurasacrapp.remote.dto.SolicitudGuiaRequest
+import cl.duoc.aurasacrapp.remote.dto.SolicitudUsuarioDto
 import cl.duoc.aurasacrapp.remote.dto.VisitaDto
 import cl.duoc.aurasacrapp.remote.dto.VisitaRequest
 import retrofit2.http.Body
@@ -19,4 +21,11 @@ interface VisitaApi {
 
     @PATCH("api/visitas/{id}/cancelar")
     suspend fun cancelar(@Path("id") id: Long): VisitaDto
+
+    // Guías: pedir un guía para un recinto de la visita, y ver mis solicitudes
+    @POST("api/visitas/{id}/solicitudes-guia")
+    suspend fun solicitarGuia(@Path("id") id: Long, @Body solicitud: SolicitudGuiaRequest): SolicitudUsuarioDto
+
+    @GET("api/visitas/solicitudes-guia")
+    suspend fun misSolicitudesGuia(): List<SolicitudUsuarioDto>
 }
