@@ -33,6 +33,7 @@ import cl.duoc.aurasacrapp.viewmodel.PerfilViewModel
 fun PerfilScreen(
     onCerrarSesion: () -> Unit,
     onMiRecinto: () -> Unit,
+    onAdministrar: () -> Unit,
     viewModel: PerfilViewModel = viewModel()
 ) {
     val estado by viewModel.uiState.collectAsState()
@@ -66,6 +67,13 @@ fun PerfilScreen(
             if (usuario.rol == Rol.ENCARGADO) {
                 Button(onClick = onMiRecinto, modifier = Modifier.fillMaxWidth()) {
                     Text("Administrar mi recinto")
+                }
+            }
+
+            // Solo para el administrador de la red: recintos y cuentas de encargados
+            if (usuario.rol == Rol.ADMINISTRADOR) {
+                Button(onClick = onAdministrar, modifier = Modifier.fillMaxWidth()) {
+                    Text("Administrar la red")
                 }
             }
 

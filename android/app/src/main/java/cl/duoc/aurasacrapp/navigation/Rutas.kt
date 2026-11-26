@@ -25,6 +25,7 @@ object Rutas {
     const val EDITAR_EVENTO = "editar-evento/{eventoId}"
     const val EDITAR_FICHA = "editar-ficha"
     const val GUIAS = "guias"
+    const val ADMIN = "admin"
     const val GUIA_DISPONIBILIDAD = "guia/{guiaId}"
     const val EDITAR_VISITA = "editar-visita/{visitaId}"
 

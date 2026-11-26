@@ -42,5 +42,6 @@ object RetrofitClient {
     val rutaApi: RutaApi by lazy { retrofit.create(RutaApi::class.java) }
     val visitaApi: VisitaApi by lazy { retrofit.create(VisitaApi::class.java) }
     val usuarioApi: UsuarioApi by lazy { retrofit.create(UsuarioApi::class.java) }
+    val adminApi: AdminApi by lazy { retrofit.create(AdminApi::class.java) }
     val encargadoApi: EncargadoApi by lazy { retrofit.create(EncargadoApi::class.java) }
 }

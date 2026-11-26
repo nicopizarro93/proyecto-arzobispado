@@ -32,6 +32,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import cl.duoc.aurasacrapp.view.AdminScreen
 import cl.duoc.aurasacrapp.view.AgendaScreen
 import cl.duoc.aurasacrapp.view.BienvenidaScreen
 import cl.duoc.aurasacrapp.view.CrearRutaScreen
@@ -241,6 +242,7 @@ fun AppNavigation() {
             composable(Rutas.PERFIL) {
                 PerfilScreen(
                     onMiRecinto = { navController.navigate(Rutas.MI_RECINTO) },
+                    onAdministrar = { navController.navigate(Rutas.ADMIN) },
                     onCerrarSesion = {
                         navController.navigate(Rutas.BIENVENIDA) {
                             // Borra todo el historial: después de salir no se puede volver atrás
@@ -260,6 +262,9 @@ fun AppNavigation() {
             }
             composable(Rutas.EDITAR_FICHA) {
                 EditarFichaScreen(onVolver = { navController.popBackStack() })
+            }
+            composable(Rutas.ADMIN) {
+                AdminScreen(onVolver = { navController.popBackStack() })
             }
             composable(Rutas.GUIAS) {
                 GuiasScreen(
