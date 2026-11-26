@@ -11,6 +11,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -49,6 +50,9 @@ fun InicioScreen(
             Text(text = "Hola, ${estado.nombreUsuario}")
         }
         Encabezado(titulo = "Explorar")
+
+        // Aviso si no se pudo actualizar desde el backend
+        estado.error?.let { Text(text = it, color = MaterialTheme.colorScheme.error) }
 
         // Accesos al mapa y a las rutas
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

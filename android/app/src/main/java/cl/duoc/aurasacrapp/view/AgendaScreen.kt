@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -31,6 +32,9 @@ fun AgendaScreen(
             .padding(16.dp)
     ) {
         Encabezado(titulo = "Agenda cultural")
+
+        // Aviso si no se pudo actualizar desde el backend
+        estado.error?.let { Text(text = it, color = MaterialTheme.colorScheme.error) }
 
         when {
             estado.cargando -> Text("Cargando...")

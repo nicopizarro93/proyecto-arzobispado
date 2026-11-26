@@ -5,7 +5,7 @@ import android.util.Patterns
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import cl.duoc.aurasacrapp.database.AppDatabase
-import cl.duoc.aurasacrapp.repository.SesionRepository
+import cl.duoc.aurasacrapp.remote.mensajeDeError
 import cl.duoc.aurasacrapp.repository.UsuarioRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -51,15 +51,14 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
 
-        // 2. Consulta a Room en una corrutina (no bloquea la pantalla)
+        // 2. Llamada al backend en una corrutina (no bloquea la pantalla)
         viewModelScope.launch {
             _uiState.update { it.copy(cargando = true, error = null) }
-            val usuario = repositorio.validarCredenciales(estado.correo, estado.password)
-            if (usuario != null) {
-                SesionRepository.iniciar(usuario)
+            try {
+                repositorio.iniciarSesion(estado.correo, estado.password)
                 _uiState.update { it.copy(cargando = false, ingresoExitoso = true) }
-            } else {
-                _uiState.update { it.copy(cargando = false, error = "Correo o contraseña incorrectos") }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(cargando = false, error = mensajeDeError(e)) }
             }
         }
     }

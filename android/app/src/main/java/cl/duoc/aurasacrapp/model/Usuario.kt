@@ -1,30 +1,22 @@
 package cl.duoc.aurasacrapp.model
 
 import androidx.room3.Entity
-import androidx.room3.ForeignKey
 import androidx.room3.Index
 import androidx.room3.PrimaryKey
 
+// Copia local del usuario que inició sesión (el id es el mismo del backend).
+// La contraseña nunca llega a la app: la valida el servidor.
 @Entity(
     tableName = "usuario",
-    foreignKeys = [
-        ForeignKey(
-            entity = Recinto::class,
-            parentColumns = ["id"],
-            childColumns = ["recintoId"]
-        )
-    ],
-    indices = [Index(value = ["recintoId"]), Index(value = ["correo"], unique = true)]
+    indices = [Index(value = ["correo"], unique = true)]
 )
 data class Usuario(
-    @PrimaryKey(autoGenerate = true)
-    val id: Long = 0,
+    @PrimaryKey
+    val id: Long,
     val rol: Rol,
     val recintoId: Long?,
     val nombre: String,
     val apellido: String,
     val correo: String,
-    val passwordHash: String,
-    val institucion: String?,
-    val activo: Boolean = true
+    val institucion: String?
 )

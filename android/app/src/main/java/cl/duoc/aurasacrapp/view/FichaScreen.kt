@@ -18,7 +18,6 @@ import cl.duoc.aurasacrapp.view.componentes.Encabezado
 import cl.duoc.aurasacrapp.view.componentes.EventoItem
 import cl.duoc.aurasacrapp.view.componentes.HorarioSemana
 import cl.duoc.aurasacrapp.view.componentes.Seccion
-import cl.duoc.aurasacrapp.view.componentes.direccion
 import cl.duoc.aurasacrapp.view.componentes.etiqueta
 import cl.duoc.aurasacrapp.viewmodel.FichaViewModel
 
@@ -49,7 +48,7 @@ fun FichaScreen(
 
         Seccion(titulo = "Datos") {
             Text("Tipo: ${recinto.tipoRecinto.etiqueta()}")
-            Text("Dirección: ${recinto.direccion()}, ${recinto.comuna}")
+            Text("Dirección: ${recinto.direccion}")
             Text("Estado: ${recinto.estadoApertura.etiqueta()}")
         }
 
@@ -61,8 +60,11 @@ fun FichaScreen(
             Text(recinto.descripcionHistorica ?: "Este recinto aún no tiene reseña histórica.")
         }
 
-        Button(onClick = { onPlanificarVisita(recinto.id) }, modifier = Modifier.fillMaxWidth()) {
-            Text("Planificar visita")
+        // El backend solo permite agendar visitas a visitantes y docentes
+        if (estado.puedePlanificar) {
+            Button(onClick = { onPlanificarVisita(recinto.id) }, modifier = Modifier.fillMaxWidth()) {
+                Text("Planificar visita")
+            }
         }
 
         // Próximos eventos del recinto (solo si tiene)

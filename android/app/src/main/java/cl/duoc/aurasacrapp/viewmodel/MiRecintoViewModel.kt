@@ -7,6 +7,7 @@ import cl.duoc.aurasacrapp.database.AppDatabase
 import cl.duoc.aurasacrapp.model.EstadoApertura
 import cl.duoc.aurasacrapp.model.RecintoConComuna
 import cl.duoc.aurasacrapp.model.Rol
+import cl.duoc.aurasacrapp.remote.mensajeDeError
 import cl.duoc.aurasacrapp.repository.RecintoRepository
 import cl.duoc.aurasacrapp.repository.SesionRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -31,7 +32,10 @@ data class MiRecintoUiState(
 @OptIn(ExperimentalCoroutinesApi::class)
 class MiRecintoViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repositorio = RecintoRepository(AppDatabase.getDatabase(application).recintoDao())
+    private val repositorio = RecintoRepository(
+        AppDatabase.getDatabase(application).recintoDao(),
+        AppDatabase.getDatabase(application).comunaDao()
+    )
 
     private val estadoElegido = MutableStateFlow<EstadoApertura?>(null)
     private val guardando = MutableStateFlow(false)
@@ -76,10 +80,14 @@ class MiRecintoViewModel(application: Application) : AndroidViewModel(applicatio
         val nuevoEstado = estadoElegido.value ?: return
         viewModelScope.launch {
             guardando.value = true
-            repositorio.cambiarEstado(recinto.id, nuevoEstado)
+            try {
+                repositorio.cambiarEstado(recinto.id, nuevoEstado)
+                estadoElegido.value = null
+                mensaje.value = "Estado actualizado"
+            } catch (e: Exception) {
+                mensaje.value = mensajeDeError(e)
+            }
             guardando.value = false
-            estadoElegido.value = null
-            mensaje.value = "Estado actualizado"
         }
     }
 

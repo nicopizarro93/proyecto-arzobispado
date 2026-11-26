@@ -1,7 +1,6 @@
 package cl.duoc.aurasacrapp.database
 
 import android.content.Context
-import android.util.Log
 import androidx.room3.Database
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
@@ -16,13 +15,11 @@ import cl.duoc.aurasacrapp.model.Evento
 import cl.duoc.aurasacrapp.model.Recinto
 import cl.duoc.aurasacrapp.model.Usuario
 import cl.duoc.aurasacrapp.model.Visita
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 @Database(
     entities = [Comuna::class, Recinto::class, Usuario::class, Visita::class, Evento::class],
-    version = 4,
+    version = 6,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -51,20 +48,7 @@ abstract class AppDatabase : RoomDatabase() {
                     .fallbackToDestructiveMigration(true)
                     .build()
                 INSTANCE = instance
-                cargarDatosIniciales(instance)
                 instance
-            }
-        }
-
-        // Al abrir la app: si la BD está vacía (recién instalada o recreada al subir la versión),
-        // carga los datos iniciales. Se hace en segundo plano para no congelar la pantalla.
-        private fun cargarDatosIniciales(db: AppDatabase) {
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    DatosIniciales.cargarSiEstaVacia(db)
-                } catch (e: Exception) {
-                    Log.e("AuraSacrapp", "No se pudieron cargar los datos iniciales", e)
-                }
             }
         }
     }

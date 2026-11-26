@@ -2,41 +2,76 @@ package cl.duoc.aurasacrapp.viewmodel
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import cl.duoc.aurasacrapp.model.Ruta
+import androidx.lifecycle.viewModelScope
+import cl.duoc.aurasacrapp.model.RutaDetalle
+import cl.duoc.aurasacrapp.model.RutaResumen
+import cl.duoc.aurasacrapp.remote.mensajeDeError
 import cl.duoc.aurasacrapp.repository.RutaRepository
-import cl.duoc.aurasacrapp.util.CalculadoraTiempos
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-// Una ruta con su tiempo total ya calculado, para la lista
-data class RutaResumen(val ruta: Ruta, val minutosTotales: Int)
+data class RutasUiState(
+    val cargando: Boolean = true,
+    val sugeridas: List<RutaResumen> = emptyList(),
+    val mias: List<RutaResumen> = emptyList(),
+    val error: String? = null
+)
 
-class RutasViewModel : ViewModel() {
-    val rutas: List<RutaResumen> = RutaRepository.rutas().map { ruta ->
-        RutaResumen(ruta, CalculadoraTiempos.minutosTotales(ruta))
+class RutasViewModel(
+    private val repositorio: RutaRepository = RutaRepository()
+) : ViewModel() {
+
+    private val _uiState = MutableStateFlow(RutasUiState())
+    val uiState: StateFlow<RutasUiState> = _uiState.asStateFlow()
+
+    init {
+        cargar()
+    }
+
+    // Pide las rutas al backend. La pantalla lo vuelve a llamar al regresar de crear una ruta.
+    fun cargar() {
+        viewModelScope.launch {
+            try {
+                val sugeridas = repositorio.sugeridas()
+                val mias = repositorio.mias()
+                _uiState.update { it.copy(cargando = false, sugeridas = sugeridas, mias = mias, error = null) }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(cargando = false, error = mensajeDeError(e)) }
+            }
+        }
     }
 }
 
-// Detalle de una ruta: paradas, minutos de cada traslado y totales
-data class RutaDetalle(
-    val ruta: Ruta,
-    val traslados: List<Int>,
-    val minutosVisita: Int,
-    val minutosTraslado: Int,
-    val minutosTotales: Int
+data class RutaDetalleUiState(
+    val cargando: Boolean = true,
+    val detalle: RutaDetalle? = null,    // null y sin cargar = no se encontró la ruta
+    val error: String? = null
 )
 
-// SavedStateHandle trae el argumento de la ruta: "ruta/{rutaId}"
-class RutaDetalleViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
+// SavedStateHandle trae el argumento de la ruta: "ruta/{rutaId}".
+// @JvmOverloads genera también el constructor de un solo parámetro (SavedStateHandle),
+// que es el que Android busca para crear este ViewModel.
+class RutaDetalleViewModel @JvmOverloads constructor(
+    savedStateHandle: SavedStateHandle,
+    private val repositorio: RutaRepository = RutaRepository()
+) : ViewModel() {
 
     private val rutaId: Long = savedStateHandle.get<Long>("rutaId") ?: 0L
 
-    val detalle: RutaDetalle? = RutaRepository.ruta(rutaId)?.let { ruta ->
-        val traslados = CalculadoraTiempos.minutosTraslado(ruta)
-        RutaDetalle(
-            ruta = ruta,
-            traslados = traslados,
-            minutosVisita = CalculadoraTiempos.minutosVisita(ruta),
-            minutosTraslado = traslados.sum(),
-            minutosTotales = CalculadoraTiempos.minutosTotales(ruta)
-        )
+    private val _uiState = MutableStateFlow(RutaDetalleUiState())
+    val uiState: StateFlow<RutaDetalleUiState> = _uiState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            try {
+                val detalle = repositorio.detalle(rutaId)
+                _uiState.update { it.copy(cargando = false, detalle = detalle) }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(cargando = false, error = mensajeDeError(e)) }
+            }
+        }
     }
 }

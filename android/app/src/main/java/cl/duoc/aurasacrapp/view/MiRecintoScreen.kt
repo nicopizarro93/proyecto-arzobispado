@@ -1,6 +1,7 @@
 package cl.duoc.aurasacrapp.view
 
 import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -72,7 +73,7 @@ fun MiRecintoScreen(
                         selected = estado.estadoElegido == opcion,
                         onClick = { viewModel.elegirEstado(opcion) }
                     )
-                    Text(opcion.etiqueta())
+                    Text(opcion.etiqueta(), modifier = Modifier.clickable { viewModel.elegirEstado(opcion) })
                 }
             }
             Button(

@@ -7,6 +7,8 @@ import cl.duoc.aurasacrapp.database.AppDatabase
 import cl.duoc.aurasacrapp.model.RecintoConComuna
 import cl.duoc.aurasacrapp.model.Rol
 import cl.duoc.aurasacrapp.model.TipoRecinto
+import cl.duoc.aurasacrapp.remote.mensajeDeError
+import cl.duoc.aurasacrapp.repository.EventoRepository
 import cl.duoc.aurasacrapp.repository.RecintoRepository
 import cl.duoc.aurasacrapp.repository.SesionRepository
 import cl.duoc.aurasacrapp.util.sinAcentos
@@ -16,6 +18,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 // Estado de la pantalla Inicio
 data class InicioUiState(
@@ -23,12 +26,36 @@ data class InicioUiState(
     val tipoSeleccionado: TipoRecinto? = null,          // null = todos los tipos
     val recintos: List<RecintoConComuna> = emptyList(),
     val recintoACargo: RecintoConComuna? = null,       // solo para encargados
-    val cargando: Boolean = true
+    val cargando: Boolean = true,
+    val error: String? = null
 )
 
 class InicioViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repositorio = RecintoRepository(AppDatabase.getDatabase(application).recintoDao())
+    private val db = AppDatabase.getDatabase(application)
+    private val repositorio = RecintoRepository(db.recintoDao(), db.comunaDao())
+    private val eventoRepositorio = EventoRepository(db.eventoDao())
+
+    // Aviso si no se pudo actualizar desde el backend
+    private val error = MutableStateFlow<String?>(null)
+
+    init {
+        actualizar()
+    }
+
+    // Baja recintos y eventos del backend y los guarda en Room (los recintos van primero:
+    // cada evento apunta a su recinto). Si falla, se siguen mostrando los datos guardados.
+    fun actualizar() {
+        viewModelScope.launch {
+            try {
+                repositorio.sincronizar()
+                eventoRepositorio.sincronizar()
+                error.value = null
+            } catch (e: Exception) {
+                error.value = mensajeDeError(e) + ". Se muestran los datos guardados."
+            }
+        }
+    }
 
     // Lo que el usuario escribe en el buscador (se expone aparte para que el campo responda al instante)
     private val _busqueda = MutableStateFlow("")
@@ -41,8 +68,9 @@ class InicioViewModel(application: Application) : AndroidViewModel(application) 
         repositorio.recintos,
         _busqueda,
         tipoSeleccionado,
-        SesionRepository.usuario
-    ) { recintos, texto, tipo, usuario ->
+        SesionRepository.usuario,
+        error
+    ) { recintos, texto, tipo, usuario, mensajeError ->
         // Se compara sin tildes y sin mayúsculas: "maipu" encuentra "Maipú"
         val filtro = texto.trim().sinAcentos()
         val filtrados = recintos.filter { r ->
@@ -63,7 +91,8 @@ class InicioViewModel(application: Application) : AndroidViewModel(application) 
             tipoSeleccionado = tipo,
             recintos = filtrados,
             recintoACargo = recintoACargo,
-            cargando = false
+            cargando = false,
+            error = mensajeError
         )
     }.stateIn(
         scope = viewModelScope,

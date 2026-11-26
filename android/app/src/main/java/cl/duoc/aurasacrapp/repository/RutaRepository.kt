@@ -3,51 +3,75 @@ package cl.duoc.aurasacrapp.repository
 import cl.duoc.aurasacrapp.model.ModoTraslado
 import cl.duoc.aurasacrapp.model.ParadaRuta
 import cl.duoc.aurasacrapp.model.Ruta
+import cl.duoc.aurasacrapp.model.RutaDetalle
+import cl.duoc.aurasacrapp.model.RutaResumen
+import cl.duoc.aurasacrapp.remote.RetrofitClient
+import cl.duoc.aurasacrapp.remote.RutaApi
+import cl.duoc.aurasacrapp.remote.dto.ParadaRequest
+import cl.duoc.aurasacrapp.remote.dto.RutaDetalleDto
+import cl.duoc.aurasacrapp.remote.dto.RutaRequest
+import cl.duoc.aurasacrapp.remote.dto.RutaResumenDto
+import retrofit2.HttpException
 
-// Rutas sugeridas. En esta entrega son datos fijos, los mismos de la migración V7 del backend.
-// En la prueba 3 este repositorio los pedirá a la API sin cambiar las pantallas.
-object RutaRepository {
+// Rutas sugeridas por la red y rutas propias del usuario. Se piden al backend,
+// que también calcula el tiempo estimado (visitas + traslados con Haversine).
+class RutaRepository(private val api: RutaApi = RetrofitClient.rutaApi) {
 
-    private data class Lugar(val nombre: String, val comuna: String, val latitud: Double, val longitud: Double)
+    suspend fun sugeridas(): List<RutaResumen> = api.rutas().map { it.aModelo() }
 
-    // Recintos que aparecen en las rutas (id = el mismo de Room y del backend)
-    private val lugares = mapOf(
-        1L to Lugar("Capilla del Buen Pastor", "Maipú", -33.509700, -70.757400),
-        2L to Lugar("Templo San Lucas del Llano", "Maipú", -33.511200, -70.752900),
-        3L to Lugar("Museo de Arte Sacro Los Aromos", "Maipú", -33.512600, -70.750100),
-        4L to Lugar("Parroquia Santa Rosa de la Cañada", "Cerrillos", -33.495800, -70.716300),
-        5L to Lugar("Archivo Histórico La Chimba", "Recoleta", -33.428900, -70.646200),
-        6L to Lugar("Capilla San José Obrero", "Puente Alto", -33.611700, -70.575800),
-        7L to Lugar("Colegio San Esteban", "Puente Alto", -33.604500, -70.581200)
-    )
+    suspend fun mias(): List<RutaResumen> = api.misRutas().map { it.aModelo() }
 
-    private fun parada(orden: Int, recintoId: Long, minutos: Int): ParadaRuta {
-        val lugar = lugares.getValue(recintoId)
-        return ParadaRuta(orden, recintoId, lugar.nombre, lugar.comuna, lugar.latitud, lugar.longitud, minutos)
+    // Una ruta puede ser sugerida o propia: se prueba primero como sugerida y,
+    // si el backend responde 404, como una de mis rutas
+    suspend fun detalle(id: Long): RutaDetalle {
+        val dto = try {
+            api.ruta(id)
+        } catch (e: HttpException) {
+            if (e.code() == 404) api.miRuta(id) else throw e
+        }
+        return dto.aModelo()
     }
 
-    private val rutas = listOf(
-        Ruta(
-            id = 1, nombre = "Ruta del Llano de Maipú",
-            descripcion = "Tres recintos del antiguo barrio del Llano, a pocas cuadras entre sí.",
-            modoTraslado = ModoTraslado.A_PIE,
-            paradas = listOf(parada(1, 1, 30), parada(2, 2, 30), parada(3, 3, 60))
-        ),
-        Ruta(
-            id = 2, nombre = "Patrimonio del poniente",
-            descripcion = "Del museo de Maipú al archivo de La Chimba, pasando por la parroquia de Cerrillos.",
-            modoTraslado = ModoTraslado.TRANSPORTE_PUBLICO,
-            paradas = listOf(parada(1, 3, 60), parada(2, 4, 30), parada(3, 5, 45))
-        ),
-        Ruta(
-            id = 3, nombre = "Fe y escuela en Puente Alto",
-            descripcion = "Capilla del barrio y colegio con museo escolar.",
-            modoTraslado = ModoTraslado.VEHICULO,
-            paradas = listOf(parada(1, 6, 30), parada(2, 7, 45))
+    // Guarda una ruta propia; las paradas van en el orden en que se eligieron
+    suspend fun crear(nombre: String, modo: ModoTraslado, recintoIds: List<Long>): RutaDetalle {
+        val solicitud = RutaRequest(
+            nombre = nombre.trim(),
+            descripcion = null,
+            modo = modo,
+            paradas = recintoIds.map { ParadaRequest(idRecinto = it) }
         )
+        return api.crearRuta(solicitud).aModelo()
+    }
+
+    private fun RutaResumenDto.aModelo() = RutaResumen(
+        id = id,
+        nombre = nombre,
+        modoTraslado = modo,
+        cantidadParadas = cantidadParadas,
+        minutosTotales = minutosTotal
     )
 
-    fun rutas(): List<Ruta> = rutas
-
-    fun ruta(id: Long): Ruta? = rutas.find { it.id == id }
+    private fun RutaDetalleDto.aModelo() = RutaDetalle(
+        ruta = Ruta(
+            id = id,
+            nombre = nombre,
+            descripcion = descripcion.orEmpty(),
+            modoTraslado = modo,
+            paradas = paradas.map {
+                ParadaRuta(
+                    orden = it.orden,
+                    recintoId = it.idRecinto,
+                    nombreRecinto = it.recinto,
+                    estado = it.estado,
+                    latitud = it.latitud,
+                    longitud = it.longitud,
+                    tiempoVisitaMin = it.tiempoVisitaMin
+                )
+            }
+        ),
+        traslados = estimacion.tramos.map { it.minutos },
+        minutosVisita = estimacion.minutosVisita,
+        minutosTraslado = estimacion.minutosTraslado,
+        minutosTotales = estimacion.minutosTotal
+    )
 }

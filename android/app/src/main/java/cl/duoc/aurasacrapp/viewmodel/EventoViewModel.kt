@@ -10,6 +10,7 @@ import cl.duoc.aurasacrapp.repository.EventoRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.stateIn
 
 data class EventoUiState(
@@ -25,6 +26,17 @@ class EventoViewModel(
 
     private val eventoId: Long = savedStateHandle.get<Long>("eventoId") ?: 0L
     private val repositorio = EventoRepository(AppDatabase.getDatabase(application).eventoDao())
+
+    init {
+        // Pide la descripcion al backend; si falla, se muestra lo que hay guardado
+        viewModelScope.launch {
+            try {
+                repositorio.cargarDetalle(eventoId)
+            } catch (e: Exception) {
+                // sin conexion: se usan los datos guardados en Room
+            }
+        }
+    }
 
     val uiState: StateFlow<EventoUiState> = repositorio.evento(eventoId)
         .map { evento -> EventoUiState(cargando = false, evento = evento) }

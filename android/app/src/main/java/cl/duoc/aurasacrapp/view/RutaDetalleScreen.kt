@@ -7,8 +7,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -24,9 +28,11 @@ import cl.duoc.aurasacrapp.viewmodel.RutaDetalleViewModel
 fun RutaDetalleScreen(
     onVolver: () -> Unit,
     onAbrirRecinto: (Long) -> Unit,
+    onPlanificarVisita: (Long) -> Unit,
     viewModel: RutaDetalleViewModel = viewModel()
 ) {
-    val detalle = viewModel.detalle
+    val estado by viewModel.uiState.collectAsState()
+    val detalle = estado.detalle
 
     Column(
         modifier = Modifier
@@ -36,15 +42,18 @@ fun RutaDetalleScreen(
     ) {
         if (detalle == null) {
             Encabezado(titulo = "Ruta", onVolver = onVolver)
-            Text("No encontramos esta ruta.")
+            when {
+                estado.cargando -> Text("Cargando...")
+                estado.error != null -> Text(text = estado.error.orEmpty(), color = MaterialTheme.colorScheme.error)
+                else -> Text("No encontramos esta ruta.")
+            }
             return@Column
         }
         val ruta = detalle.ruta
-
         Encabezado(titulo = ruta.nombre, onVolver = onVolver)
-        Text(ruta.descripcion)
+        if (ruta.descripcion.isNotBlank()) Text(ruta.descripcion)
 
-        // Resumen del tiempo estimado (misma fórmula que el backend)
+        // Resumen del tiempo estimado (lo calcula el backend)
         Seccion(titulo = ruta.modoTraslado.etiqueta()) {
             Text("Tiempo total: ${formatearDuracion(detalle.minutosTotales)}")
             Text("Visitas: ${formatearDuracion(detalle.minutosVisita)}")
@@ -55,7 +64,7 @@ fun RutaDetalleScreen(
         ruta.paradas.forEachIndexed { i, parada ->
             Item(
                 titulo = "${i + 1}. ${parada.nombreRecinto}",
-                detalle = "${parada.comuna} · visita de ${formatearDuracion(parada.tiempoVisitaMin)}",
+                detalle = "${parada.estado.etiqueta()} · visita de ${formatearDuracion(parada.tiempoVisitaMin)}",
                 onClick = { onAbrirRecinto(parada.recintoId) }
             )
             detalle.traslados.getOrNull(i)?.let { minutos ->
@@ -68,6 +77,12 @@ fun RutaDetalleScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Iniciar ruta")
+        }
+        OutlinedButton(
+            onClick = { onPlanificarVisita(ruta.id) },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Planificar visita a esta ruta")
         }
     }
 }
