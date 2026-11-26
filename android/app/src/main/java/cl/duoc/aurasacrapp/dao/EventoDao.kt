@@ -1,8 +1,8 @@
 package cl.duoc.aurasacrapp.dao
 
 import androidx.room3.Dao
-import androidx.room3.Insert
 import androidx.room3.Query
+import androidx.room3.Upsert
 import cl.duoc.aurasacrapp.model.Evento
 import cl.duoc.aurasacrapp.model.EventoDetalle
 import kotlinx.coroutines.flow.Flow
@@ -10,8 +10,20 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface EventoDao {
 
-    @Insert
-    suspend fun eventoAlmacenarTodos(eventos: List<Evento>)
+    // Sincronización con el backend: inserta los eventos nuevos y actualiza los que ya existen
+    @Upsert
+    suspend fun eventoGuardarTodos(eventos: List<Evento>)
+
+    // Quita los eventos que el backend ya no entrega (cancelados o terminados)
+    @Query("DELETE FROM evento WHERE id NOT IN (:ids)")
+    suspend fun eventoBorrarExcepto(ids: List<Long>)
+
+    // Copia de todos los eventos guardados (para conservar la descripción al sincronizar)
+    @Query("SELECT * FROM evento")
+    suspend fun eventoListarTodos(): List<Evento>
+
+    @Query("UPDATE evento SET descripcion = :descripcion WHERE id = :id")
+    suspend fun eventoActualizarDescripcion(id: Long, descripcion: String?)
 
     // Agenda: eventos publicados que aún no terminan, del más próximo al más lejano.
     // COALESCE: si no tiene hora de término, se usa la de inicio.

@@ -52,13 +52,11 @@ fun EditarFichaScreen(
 @Composable
 private fun FormularioFicha(recinto: RecintoConComuna, onGuardar: () -> Unit) {
     var nombre by rememberSaveable(recinto.id) { mutableStateOf(recinto.nombreOficial) }
-    var calle by rememberSaveable(recinto.id) { mutableStateOf(recinto.calle) }
-    var numero by rememberSaveable(recinto.id) { mutableStateOf(recinto.numeroCalle ?: "") }
+    var direccion by rememberSaveable(recinto.id) { mutableStateOf(recinto.direccion) }
     var historia by rememberSaveable(recinto.id) { mutableStateOf(recinto.descripcionHistorica ?: "") }
 
     CampoTexto(valor = nombre, onValorChange = { nombre = it }, etiqueta = "Nombre oficial")
-    CampoTexto(valor = calle, onValorChange = { calle = it }, etiqueta = "Calle")
-    CampoTexto(valor = numero, onValorChange = { numero = it }, etiqueta = "Número")
+    CampoTexto(valor = direccion, onValorChange = { direccion = it }, etiqueta = "Dirección")
     CampoTexto(valor = historia, onValorChange = { historia = it }, etiqueta = "Historia", lineas = 5)
 
     Button(onClick = onGuardar, modifier = Modifier.fillMaxWidth()) {

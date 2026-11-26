@@ -1,6 +1,7 @@
 package cl.duoc.aurasacrapp.view.componentes
 
 import cl.duoc.aurasacrapp.model.EstadoApertura
+import cl.duoc.aurasacrapp.model.EstadoVisita
 import cl.duoc.aurasacrapp.model.ModoTraslado
 import cl.duoc.aurasacrapp.model.RecintoConComuna
 import cl.duoc.aurasacrapp.model.Rol
@@ -54,5 +55,8 @@ fun ModoTraslado.etiqueta(): String = when (this) {
     ModoTraslado.VEHICULO -> "Vehículo"
 }
 
-// "Av. Los Aromos 1240" o "Calle Los Talleres s/n" si no tiene número
-fun RecintoConComuna.direccion(): String = "$calle ${numeroCalle ?: "s/n"}"
+fun EstadoVisita.etiqueta(): String = when (this) {
+    EstadoVisita.AGENDADA -> "Agendada"
+    EstadoVisita.REALIZADA -> "Realizada"
+    EstadoVisita.CANCELADA -> "Cancelada"
+}

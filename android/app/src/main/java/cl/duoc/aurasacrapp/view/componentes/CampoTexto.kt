@@ -12,7 +12,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 
-// Campo de texto de los formularios: ocupa todo el ancho y deja un pequeño espacio abajo
+// Campo de texto de los formularios: ocupa todo el ancho y deja un pequeño espacio abajo.
+// Si recibe un error, se pinta en rojo y muestra el mensaje bajo el campo.
 @Composable
 fun CampoTexto(
     valor: String,
@@ -20,12 +21,15 @@ fun CampoTexto(
     etiqueta: String,
     teclado: KeyboardType = KeyboardType.Text,
     esPassword: Boolean = false,
-    lineas: Int = 1
+    lineas: Int = 1,
+    error: String? = null
 ) {
     OutlinedTextField(
         value = valor,
         onValueChange = onValorChange,
         label = { Text(etiqueta) },
+        isError = error != null,
+        supportingText = error?.let { { Text(it) } },
         singleLine = lineas == 1,
         minLines = lineas,
         keyboardOptions = KeyboardOptions(keyboardType = teclado),

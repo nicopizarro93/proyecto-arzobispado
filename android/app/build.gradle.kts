@@ -66,4 +66,7 @@ dependencies {
     ksp(libs.androidx.room3.compiler)
     // ML Kit: lector de códigos QR de Google (la cámara la maneja Google Play Services)
     implementation(libs.play.services.code.scanner)
+    // Retrofit + Gson: consumo de la API REST del backend
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
 }

@@ -19,7 +19,10 @@ data class MapaUiState(
 
 class MapaViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repositorio = RecintoRepository(AppDatabase.getDatabase(application).recintoDao())
+    private val repositorio = RecintoRepository(
+        AppDatabase.getDatabase(application).recintoDao(),
+        AppDatabase.getDatabase(application).comunaDao()
+    )
     private val seleccionadoId = MutableStateFlow<Long?>(null)
 
     val uiState: StateFlow<MapaUiState> = combine(repositorio.recintos, seleccionadoId) { recintos, id ->

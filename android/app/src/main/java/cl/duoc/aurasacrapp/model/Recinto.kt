@@ -22,8 +22,7 @@ data class Recinto(
     val tipoRecinto: TipoRecinto,
     val comunaId: Long,
     val nombreOficial: String,
-    val calle: String,
-    val numeroCalle: String?,          // null = sin número
+    val direccion: String,             // calle y número, como la entrega el backend
     val latitud: Double,
     val longitud: Double,
     val descripcionHistorica: String?,

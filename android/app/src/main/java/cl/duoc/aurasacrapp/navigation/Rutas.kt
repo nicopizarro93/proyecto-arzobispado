@@ -12,6 +12,7 @@ object Rutas {
     const val PLANIFICAR = "planificar/{recintoId}"
     const val RUTAS = "rutas"
     const val RUTA = "ruta/{rutaId}"
+    const val PLANIFICAR_RUTA = "planificar-ruta/{rutaId}"
     const val CREAR_RUTA = "crear-ruta"
     const val AGENDA = "agenda"
     const val EVENTO = "evento/{eventoId}"  // {eventoId} es un argumento
@@ -28,4 +29,5 @@ object Rutas {
     fun evento(eventoId: Long) = "evento/$eventoId"
     fun planificar(recintoId: Long) = "planificar/$recintoId"
     fun ruta(rutaId: Long) = "ruta/$rutaId"
+    fun planificarRuta(rutaId: Long) = "planificar-ruta/$rutaId"
 }

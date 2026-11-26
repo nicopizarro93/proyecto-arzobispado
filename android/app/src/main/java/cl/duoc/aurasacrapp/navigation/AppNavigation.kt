@@ -19,6 +19,8 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -43,8 +45,10 @@ import cl.duoc.aurasacrapp.view.LoginScreen
 import cl.duoc.aurasacrapp.view.MapaScreen
 import cl.duoc.aurasacrapp.view.MiRecintoScreen
 import cl.duoc.aurasacrapp.view.PerfilScreen
+import cl.duoc.aurasacrapp.view.PlanificarRutaScreen
 import cl.duoc.aurasacrapp.view.PlanificarVisitaScreen
 import cl.duoc.aurasacrapp.view.PublicarEventoScreen
+import cl.duoc.aurasacrapp.repository.SesionRepository
 import cl.duoc.aurasacrapp.view.RegistroScreen
 import cl.duoc.aurasacrapp.view.RutaDetalleScreen
 import cl.duoc.aurasacrapp.view.RutasScreen
@@ -71,6 +75,18 @@ fun AppNavigation() {
     val entradaActual by navController.currentBackStackEntryAsState()
     val rutaActual = entradaActual?.destination?.route
 
+    // Si el token venció, el backend responde 401: se cierra la sesión y se vuelve a Bienvenida
+    val sesionVencida by SesionRepository.sesionVencida.collectAsState()
+    LaunchedEffect(sesionVencida) {
+        if (sesionVencida) {
+            avisar(context, "Tu sesión venció. Inicia sesión de nuevo.")
+            SesionRepository.avisoVencimientoMostrado()
+            navController.navigate(Rutas.BIENVENIDA) {
+                popUpTo(navController.graph.id) { inclusive = true }
+            }
+        }
+    }
+
     // La barra inferior solo aparece en las pantallas principales
     val mostrarBarra = pestanas.any { it.ruta == rutaActual }
 
@@ -87,7 +103,8 @@ fun AppNavigation() {
         // NavHost: muestra la pantalla que corresponde a la ruta actual
         NavHost(
             navController = navController,
-            startDestination = Rutas.BIENVENIDA,
+            // Si quedó una sesión guardada, la app abre directo en Inicio
+            startDestination = if (SesionRepository.usuario.value != null) Rutas.INICIO else Rutas.BIENVENIDA,
             modifier = Modifier
                 .padding(innerPadding)
                 .consumeWindowInsets(innerPadding)
@@ -173,7 +190,17 @@ fun AppNavigation() {
             ) {
                 RutaDetalleScreen(
                     onVolver = { navController.popBackStack() },
-                    onAbrirRecinto = { id -> navController.navigate(Rutas.ficha(id)) }
+                    onAbrirRecinto = { id -> navController.navigate(Rutas.ficha(id)) },
+                    onPlanificarVisita = { id -> navController.navigate(Rutas.planificarRuta(id)) }
+                )
+            }
+            composable(
+                route = Rutas.PLANIFICAR_RUTA,
+                arguments = listOf(navArgument("rutaId") { type = NavType.LongType })
+            ) {
+                PlanificarRutaScreen(
+                    onVolver = { navController.popBackStack() },
+                    onGuardar = { avisarYVolver(navController, context, "Visita agendada") }
                 )
             }
             composable(Rutas.AGENDA) {

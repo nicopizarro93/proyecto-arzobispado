@@ -1,5 +1,6 @@
 package cl.duoc.aurasacrapp
 
+import cl.duoc.aurasacrapp.model.EstadoApertura
 import cl.duoc.aurasacrapp.model.ModoTraslado
 import cl.duoc.aurasacrapp.model.ParadaRuta
 import cl.duoc.aurasacrapp.model.Ruta
@@ -11,8 +12,8 @@ import org.junit.Test
 // Pruebas unitarias del cálculo de tiempos de una ruta (misma fórmula que el backend)
 class CalculadoraTiemposTest {
 
-    private val capilla = ParadaRuta(1, 1, "Capilla del Buen Pastor", "Maipú", -33.509700, -70.757400, 30)
-    private val museo = ParadaRuta(2, 3, "Museo de Arte Sacro Los Aromos", "Maipú", -33.512600, -70.750100, 60)
+    private val capilla = ParadaRuta(1, 1, "Capilla del Buen Pastor", EstadoApertura.ABIERTO, -33.509700, -70.757400, 30)
+    private val museo = ParadaRuta(2, 3, "Museo de Arte Sacro Los Aromos", EstadoApertura.ABIERTO, -33.512600, -70.750100, 60)
 
     @Test
     fun unGradoDeLongitudEnElEcuadorMideCasi111Km() {
