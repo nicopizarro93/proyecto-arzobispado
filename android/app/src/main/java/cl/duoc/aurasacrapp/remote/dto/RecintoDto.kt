@@ -24,6 +24,7 @@ data class RecintoResumenDto(
 
 // Un bloque de horario. Las horas llegan como "09:00:00"
 data class HorarioDto(
+    val id: Long,
     val diaSemana: Int,
     val horaApertura: String,
     val horaCierre: String

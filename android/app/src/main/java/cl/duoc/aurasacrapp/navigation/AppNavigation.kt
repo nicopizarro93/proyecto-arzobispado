@@ -44,6 +44,7 @@ import cl.duoc.aurasacrapp.view.InicioScreen
 import cl.duoc.aurasacrapp.view.LoginScreen
 import cl.duoc.aurasacrapp.view.MapaScreen
 import cl.duoc.aurasacrapp.view.MiRecintoScreen
+import cl.duoc.aurasacrapp.view.MisEventosScreen
 import cl.duoc.aurasacrapp.view.PerfilScreen
 import cl.duoc.aurasacrapp.view.PlanificarRutaScreen
 import cl.duoc.aurasacrapp.view.PlanificarVisitaScreen
@@ -237,24 +238,38 @@ fun AppNavigation() {
                 MiRecintoScreen(
                     onVolver = { navController.popBackStack() },
                     onVerFicha = { id -> navController.navigate(Rutas.ficha(id)) },
-                    onPublicarEvento = { navController.navigate(Rutas.PUBLICAR_EVENTO) },
+                    onEventos = { navController.navigate(Rutas.MIS_EVENTOS) },
                     onEditarFicha = { navController.navigate(Rutas.EDITAR_FICHA) },
                     onGuias = { navController.navigate(Rutas.GUIAS) }
                 )
             }
             composable(Rutas.EDITAR_FICHA) {
-                EditarFichaScreen(
-                    onVolver = { navController.popBackStack() },
-                    onGuardar = { avisarYVolver(navController, context, "Cambios guardados") }
-                )
+                EditarFichaScreen(onVolver = { navController.popBackStack() })
             }
             composable(Rutas.GUIAS) {
                 GuiasScreen(onVolver = { navController.popBackStack() })
+            }
+            composable(Rutas.MIS_EVENTOS) {
+                MisEventosScreen(
+                    onVolver = { navController.popBackStack() },
+                    onPublicar = { navController.navigate(Rutas.PUBLICAR_EVENTO) },
+                    onEditar = { id -> navController.navigate(Rutas.editarEvento(id)) }
+                )
             }
             composable(Rutas.PUBLICAR_EVENTO) {
                 PublicarEventoScreen(
                     onVolver = { navController.popBackStack() },
                     onGuardar = { avisarYVolver(navController, context, "Evento publicado") }
+                )
+            }
+            composable(
+                route = Rutas.EDITAR_EVENTO,
+                arguments = listOf(navArgument("eventoId") { type = NavType.LongType })
+            ) {
+                // El eventoId lo lee EventoFormularioViewModel desde SavedStateHandle
+                PublicarEventoScreen(
+                    onVolver = { navController.popBackStack() },
+                    onGuardar = { avisarYVolver(navController, context, "Evento actualizado") }
                 )
             }
         }

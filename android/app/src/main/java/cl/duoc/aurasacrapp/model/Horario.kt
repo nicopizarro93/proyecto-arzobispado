@@ -5,5 +5,6 @@ package cl.duoc.aurasacrapp.model
 data class Horario(
     val diaSemana: Int,
     val apertura: String,
-    val cierre: String
+    val cierre: String,
+    val id: Long = 0        // id del bloque en el backend (para editarlo o eliminarlo)
 )
