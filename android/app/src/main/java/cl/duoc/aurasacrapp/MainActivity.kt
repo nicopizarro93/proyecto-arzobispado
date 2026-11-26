@@ -7,9 +7,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.lifecycle.lifecycleScope
+import cl.duoc.aurasacrapp.database.AppDatabase
 import cl.duoc.aurasacrapp.navigation.AppNavigation
 import cl.duoc.aurasacrapp.repository.SesionRepository
+import kotlinx.coroutines.Dispatchers
 import cl.duoc.aurasacrapp.ui.theme.AuraSacrappTheme
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
@@ -21,6 +25,13 @@ class MainActivity : ComponentActivity() {
         }
         // Recupera la sesión guardada (si el usuario ya había iniciado sesión)
         SesionRepository.inicializar(this)
+        // La sesión guardada necesita su fila en Room (las visitas escaneadas apuntan al usuario):
+        // así sigue existiendo aunque la base se haya recreado al actualizar la app
+        lifecycleScope.launch(Dispatchers.IO) {
+            SesionRepository.usuario.value?.let {
+                AppDatabase.getDatabase(applicationContext).usuarioDao().usuarioGuardar(it)
+            }
+        }
         // La app siempre es clara: íconos oscuros en la barra de estado y de navegación,
         // aunque el teléfono esté en modo oscuro
         enableEdgeToEdge(

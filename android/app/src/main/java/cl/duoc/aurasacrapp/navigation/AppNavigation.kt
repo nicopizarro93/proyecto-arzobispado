@@ -36,6 +36,7 @@ import cl.duoc.aurasacrapp.view.AgendaScreen
 import cl.duoc.aurasacrapp.view.BienvenidaScreen
 import cl.duoc.aurasacrapp.view.CrearRutaScreen
 import cl.duoc.aurasacrapp.view.EditarFichaScreen
+import cl.duoc.aurasacrapp.view.EditarVisitaScreen
 import cl.duoc.aurasacrapp.view.EscanearScreen
 import cl.duoc.aurasacrapp.view.EventoScreen
 import cl.duoc.aurasacrapp.view.FichaScreen
@@ -222,7 +223,20 @@ fun AppNavigation() {
                 EscanearScreen(onRecintoEscaneado = { id -> navController.navigate(Rutas.ficha(id)) })
             }
             composable(Rutas.VISITAS) {
-                VisitasScreen(onAbrirRecinto = { id -> navController.navigate(Rutas.ficha(id)) })
+                VisitasScreen(
+                    onAbrirRecinto = { id -> navController.navigate(Rutas.ficha(id)) },
+                    onEditarVisita = { id -> navController.navigate(Rutas.editarVisita(id)) }
+                )
+            }
+            composable(
+                route = Rutas.EDITAR_VISITA,
+                arguments = listOf(navArgument("visitaId") { type = NavType.LongType })
+            ) {
+                // El visitaId lo lee EditarVisitaViewModel desde SavedStateHandle
+                EditarVisitaScreen(
+                    onVolver = { navController.popBackStack() },
+                    onGuardar = { avisarYVolver(navController, context, "Visita actualizada") }
+                )
             }
             composable(Rutas.PERFIL) {
                 PerfilScreen(

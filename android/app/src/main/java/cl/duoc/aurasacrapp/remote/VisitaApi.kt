@@ -1,5 +1,6 @@
 package cl.duoc.aurasacrapp.remote
 
+import cl.duoc.aurasacrapp.remote.dto.CambioVisitaRequest
 import cl.duoc.aurasacrapp.remote.dto.SolicitudGuiaRequest
 import cl.duoc.aurasacrapp.remote.dto.SolicitudUsuarioDto
 import cl.duoc.aurasacrapp.remote.dto.VisitaDto
@@ -8,6 +9,7 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.PATCH
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 
 // Visitas agendadas (solo visitantes y docentes con sesión iniciada)
@@ -18,6 +20,10 @@ interface VisitaApi {
 
     @GET("api/visitas")
     suspend fun misVisitas(): List<VisitaDto>
+
+    // Cambia la fecha, la hora y la cantidad de personas de una visita agendada
+    @PUT("api/visitas/{id}")
+    suspend fun cambiar(@Path("id") id: Long, @Body solicitud: CambioVisitaRequest): VisitaDto
 
     @PATCH("api/visitas/{id}/cancelar")
     suspend fun cancelar(@Path("id") id: Long): VisitaDto

@@ -26,3 +26,9 @@ data class VisitaDto(
     val observaciones: String?,
     val estado: EstadoVisita
 )
+
+// Lo único que se puede cambiar de una visita agendada: cuándo es y cuántas personas van
+data class CambioVisitaRequest(
+    val inicio: String,
+    val cantidadPersonas: Int
+)

@@ -8,6 +8,7 @@ import cl.duoc.aurasacrapp.model.VisitaAgendada
 import cl.duoc.aurasacrapp.model.VisitaDetalle
 import cl.duoc.aurasacrapp.remote.RetrofitClient
 import cl.duoc.aurasacrapp.remote.VisitaApi
+import cl.duoc.aurasacrapp.remote.dto.CambioVisitaRequest
 import cl.duoc.aurasacrapp.remote.dto.VisitaDto
 import cl.duoc.aurasacrapp.remote.dto.VisitaRequest
 import cl.duoc.aurasacrapp.util.isoAMillis
@@ -62,6 +63,11 @@ class VisitaRepository(
     }
 
     suspend fun agendadas(): List<VisitaAgendada> = api.misVisitas().map { it.aModelo() }
+
+    // Cambia la fecha (en formato ISO), la hora y la cantidad de personas de una visita agendada
+    suspend fun cambiar(visitaId: Long, inicio: String, cantidadPersonas: Int) {
+        api.cambiar(visitaId, CambioVisitaRequest(inicio, cantidadPersonas))
+    }
 
     suspend fun cancelar(visitaId: Long) {
         api.cancelar(visitaId)
