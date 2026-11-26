@@ -1,6 +1,7 @@
 package cl.duoc.aurasacrapp_api.encargado;
 
 import cl.duoc.aurasacrapp_api.encargado.dto.CambioEstadoRequest;
+import cl.duoc.aurasacrapp_api.encargado.dto.FichaRequest;
 import cl.duoc.aurasacrapp_api.recinto.dto.RecintoDetalleDto;
 import jakarta.validation.Valid;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -35,6 +36,13 @@ public class EncargadoController {
     public RecintoDetalleDto cambiarEstado(@AuthenticationPrincipal Jwt jwt,
                                            @Valid @RequestBody CambioEstadoRequest solicitud) {
         return encargadoService.cambiarEstado(idUsuario(jwt), solicitud.estado());
+    }
+
+    // PUT /api/encargado/recinto/ficha  con {"descripcionHistorica": "..."} → 200 con la ficha
+    @PutMapping("/ficha")
+    public RecintoDetalleDto editarFicha(@AuthenticationPrincipal Jwt jwt,
+                                         @Valid @RequestBody FichaRequest solicitud) {
+        return encargadoService.editarFicha(idUsuario(jwt), solicitud);
     }
 
     // POST /api/encargado/recinto/horarios → 201 con el bloque creado

@@ -1,6 +1,7 @@
 package cl.duoc.aurasacrapp_api.encargado;
 
 import cl.duoc.aurasacrapp_api.auth.CuentaDeshabilitadaException;
+import cl.duoc.aurasacrapp_api.encargado.dto.FichaRequest;
 import cl.duoc.aurasacrapp_api.horario.HorarioService;
 import cl.duoc.aurasacrapp_api.horario.dto.HorarioRequest;
 import cl.duoc.aurasacrapp_api.recinto.EstadoApertura;
@@ -100,6 +101,26 @@ class EncargadoServiceTest {
         encargadoService.agregarHorario(ID_USUARIO, datos);
 
         verify(horarioService).crear(capilla, datos);
+    }
+
+    @Test
+    void editarFichaGuardaLaResenaEnElRecintoDeLaCuenta() {
+        when(usuarioRepository.findById(ID_USUARIO)).thenReturn(Optional.of(cuenta(Rol.ENCARGADO, true)));
+
+        encargadoService.editarFicha(ID_USUARIO, new FichaRequest("  Construida en 1890.  "));
+
+        assertEquals("Construida en 1890.", capilla.getDescripcionHistorica());
+        verify(recintoService).obtener(1L);
+    }
+
+    @Test
+    void unaResenaVaciaSeGuardaComoSinResena() {
+        when(usuarioRepository.findById(ID_USUARIO)).thenReturn(Optional.of(cuenta(Rol.ENCARGADO, true)));
+        capilla.setDescripcionHistorica("Texto anterior");
+
+        encargadoService.editarFicha(ID_USUARIO, new FichaRequest("   "));
+
+        assertNull(capilla.getDescripcionHistorica());
     }
 
     @Test
