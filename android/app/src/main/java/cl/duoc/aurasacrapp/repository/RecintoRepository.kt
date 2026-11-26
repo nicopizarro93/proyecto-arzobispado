@@ -62,6 +62,7 @@ class RecintoRepository(
         recintoDao.recintoActualizarDescripcion(id, detalle.descripcionHistorica)
         return detalle.horarios.map {
             Horario(
+                id = it.id,
                 diaSemana = it.diaSemana,
                 apertura = it.horaApertura.take(5),   // "09:00:00" -> "09:00"
                 cierre = it.horaCierre.take(5)

@@ -1,20 +1,61 @@
 package cl.duoc.aurasacrapp.remote
 
 import cl.duoc.aurasacrapp.remote.dto.CambioEstadoRequest
+import cl.duoc.aurasacrapp.remote.dto.EventoGestionDto
+import cl.duoc.aurasacrapp.remote.dto.EventoRequest
+import cl.duoc.aurasacrapp.remote.dto.FichaRequest
+import cl.duoc.aurasacrapp.remote.dto.HorarioDto
+import cl.duoc.aurasacrapp.remote.dto.HorarioRequest
 import cl.duoc.aurasacrapp.remote.dto.RecintoDetalleDto
 import cl.duoc.aurasacrapp.remote.dto.RecintoIdDto
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.PATCH
+import retrofit2.http.POST
+import retrofit2.http.PUT
+import retrofit2.http.Path
 
-// Endpoints del panel del encargado (exigen el token JWT de un encargado)
+// Endpoints del panel del encargado (exigen el token JWT de un encargado).
+// El recinto sale de la cuenta del token: el encargado solo puede modificar el suyo.
 interface EncargadoApi {
 
-    // Recinto que el encargado tiene asignado
+    // Solo el id del recinto asignado (se usa al iniciar sesión)
     @GET("api/encargado/recinto")
     suspend fun miRecinto(): RecintoIdDto
 
-    // Cambia el estado de apertura de su recinto
+    // Ficha completa del recinto asignado: reseña, estado y horarios
+    @GET("api/encargado/recinto")
+    suspend fun miRecintoDetalle(): RecintoDetalleDto
+
     @PATCH("api/encargado/recinto/estado")
     suspend fun cambiarEstado(@Body solicitud: CambioEstadoRequest): RecintoDetalleDto
+
+    @PUT("api/encargado/recinto/ficha")
+    suspend fun editarFicha(@Body solicitud: FichaRequest): RecintoDetalleDto
+
+    // ---- Horarios ----
+
+    @POST("api/encargado/recinto/horarios")
+    suspend fun agregarHorario(@Body solicitud: HorarioRequest): HorarioDto
+
+    @PUT("api/encargado/recinto/horarios/{id}")
+    suspend fun editarHorario(@Path("id") id: Long, @Body solicitud: HorarioRequest): HorarioDto
+
+    @DELETE("api/encargado/recinto/horarios/{id}")
+    suspend fun eliminarHorario(@Path("id") id: Long)
+
+    // ---- Eventos, avisos, aperturas y cierres ----
+
+    @GET("api/encargado/recinto/eventos")
+    suspend fun eventos(): List<EventoGestionDto>
+
+    @POST("api/encargado/recinto/eventos")
+    suspend fun publicarEvento(@Body solicitud: EventoRequest): EventoGestionDto
+
+    @PUT("api/encargado/recinto/eventos/{id}")
+    suspend fun editarEvento(@Path("id") id: Long, @Body solicitud: EventoRequest): EventoGestionDto
+
+    @PATCH("api/encargado/recinto/eventos/{id}/cancelar")
+    suspend fun cancelarEvento(@Path("id") id: Long): EventoGestionDto
 }

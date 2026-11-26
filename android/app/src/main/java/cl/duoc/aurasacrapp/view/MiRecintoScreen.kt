@@ -33,7 +33,7 @@ import cl.duoc.aurasacrapp.viewmodel.MiRecintoViewModel
 fun MiRecintoScreen(
     onVolver: () -> Unit,
     onVerFicha: (Long) -> Unit,
-    onPublicarEvento: () -> Unit,
+    onEventos: () -> Unit,
     onEditarFicha: () -> Unit,
     onGuias: () -> Unit,
     viewModel: MiRecintoViewModel = viewModel()
@@ -89,8 +89,8 @@ fun MiRecintoScreen(
         OutlinedButton(onClick = onEditarFicha, modifier = Modifier.fillMaxWidth()) {
             Text("Editar ficha")
         }
-        OutlinedButton(onClick = onPublicarEvento, modifier = Modifier.fillMaxWidth()) {
-            Text("Publicar evento o aviso")
+        OutlinedButton(onClick = onEventos, modifier = Modifier.fillMaxWidth()) {
+            Text("Eventos y avisos")
         }
         OutlinedButton(onClick = onGuias, modifier = Modifier.fillMaxWidth()) {
             Text("Guías y solicitudes")

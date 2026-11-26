@@ -1,6 +1,7 @@
 package cl.duoc.aurasacrapp_api.encargado;
 
 import cl.duoc.aurasacrapp_api.auth.CuentaDeshabilitadaException;
+import cl.duoc.aurasacrapp_api.encargado.dto.FichaRequest;
 import cl.duoc.aurasacrapp_api.recinto.EstadoApertura;
 import cl.duoc.aurasacrapp_api.recinto.Recinto;
 import cl.duoc.aurasacrapp_api.recinto.RecintoService;
@@ -49,6 +50,14 @@ public class EncargadoService {
         Recinto recinto = recintoAsignado(idUsuario);
         recinto.setEstadoApertura(estado);
         recinto.setFechaEstado(LocalDateTime.now());
+        return recintoService.obtener(recinto.getId());
+    }
+
+    // Edita la reseña histórica del recinto asignado (HU-31).
+    @Transactional
+    public RecintoDetalleDto editarFicha(Long idUsuario, FichaRequest datos) {
+        Recinto recinto = recintoAsignado(idUsuario);
+        recinto.setDescripcionHistorica(datos.descripcionHistorica());
         return recintoService.obtener(recinto.getId());
     }
 

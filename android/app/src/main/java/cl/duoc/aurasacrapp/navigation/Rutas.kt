@@ -21,6 +21,8 @@ object Rutas {
     const val PERFIL = "perfil"
     const val MI_RECINTO = "mi-recinto"     // solo para encargados
     const val PUBLICAR_EVENTO = "publicar-evento"
+    const val MIS_EVENTOS = "mis-eventos"
+    const val EDITAR_EVENTO = "editar-evento/{eventoId}"
     const val EDITAR_FICHA = "editar-ficha"
     const val GUIAS = "guias"
 
@@ -30,4 +32,5 @@ object Rutas {
     fun planificar(recintoId: Long) = "planificar/$recintoId"
     fun ruta(rutaId: Long) = "ruta/$rutaId"
     fun planificarRuta(rutaId: Long) = "planificar-ruta/$rutaId"
+    fun editarEvento(eventoId: Long) = "editar-evento/$eventoId"
 }
