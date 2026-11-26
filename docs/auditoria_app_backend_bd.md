@@ -71,3 +71,52 @@ Falta solo en la app (requiere GPS / almacenamiento local):
 - La carpeta `android/app/build` de Android Studio tiene archivos bloqueados: compilar desde Android Studio.
 - Las pruebas unitarias del backend no se ejecutaron en esta auditoría (el backend estaba corriendo).
 - En la presentación está prohibido usar apuntes e IA: conviene poder explicar cada capa (`docs/guia_estudio_prueba2.md`).
+
+
+---
+
+# Actualización final (26 nov 2026, después de las ramas perfil, guías, favoritos y admin)
+
+Todo lo de la sección 4 que no quedó fuera de alcance se construyó y se probó en el emulador contra el backend.
+
+## Casos de uso: estado final
+
+| Historia | Estado |
+|---|---|
+| HU-01 a HU-04 Cuenta, login, roles y cierre de sesión | Hecho (token vencido cierra la sesión sola) |
+| HU-05 Perfil: editar datos y cambiar contraseña | Hecho |
+| HU-09 Buscar y filtrar (tipo, comuna, estado, favoritos) y limpiar filtros | Hecho |
+| HU-10 Ficha: datos, horario, historia y eventos | Hecho (sin galería, ver abajo) |
+| HU-11 Favoritos en Room, sin cuenta y sin conexión | Hecho |
+| HU-13 Estado y horario | Hecho (aperturas y cierres especiales se publican, pero la ficha no los muestra aparte) |
+| HU-14, HU-15 Agenda y detalle de evento | Hecho |
+| HU-17 a HU-19 Rutas sugeridas, propias y tiempo estimado | Hecho |
+| HU-21, HU-22 Agendar visita y salida pedagógica (recinto o ruta, con observaciones) | Hecho |
+| HU-23, HU-24 Pedir un guía y ver su estado | Hecho |
+| HU-25 Editar y cancelar mis visitas | Hecho |
+| HU-26 a HU-31 Panel del encargado (estado, horarios, eventos, aperturas y cierres, reseña) | Hecho |
+| HU-32, HU-33 Guías, disponibilidad y asignación de solicitudes | Hecho |
+| HU-34 Cuentas de encargados (administrador) | Hecho (backend nuevo) |
+| HU-35 Registrar y dar de baja recintos (administrador) | Hecho |
+
+## Fuera de esta entrega (decisión del equipo)
+
+GPS (HU-07 con ubicación, HU-08 recintos cercanos, HU-20 iniciar ruta), galería de fotos de la ficha (parte de
+HU-10), recuperar contraseña (HU-06), avisos de eventos cercanos (HU-16), rutas sugeridas del administrador
+(HU-36) y fichas sin conexión completas (HU-12: los recintos y eventos sí quedan en Room; el horario y la
+historia de una ficha no se guardan).
+
+## Verificación final
+
+- **Backend:** 117 pruebas unitarias y de arranque, todas pasan.
+- **App:** 11 pruebas unitarias pasan; el APK de release compila (10,9 MB sin firmar).
+- **API contra MySQL real:** 28 comprobaciones de guías y 22 de administración, todas correctas.
+- **Emulador:** recorrido completo con cada rol (visitante, docente, encargado y administrador) sin cierres
+  inesperados; los datos de prueba se borraron después de cada recorrido.
+
+## Cosas que conviene saber
+
+- La lista de recintos se actualiza al abrir la app (Inicio la baja del backend) o al registrar o dar de baja
+  desde el panel del administrador. Si alguien cambia datos desde fuera de la app, se ven al reabrirla.
+- El token JWT dura 8 horas y el tráfico HTTP solo está permitido hacia `10.0.2.2` (emulador).
+- Android 17 exige el permiso de red local para que la app llegue al backend del PC.
