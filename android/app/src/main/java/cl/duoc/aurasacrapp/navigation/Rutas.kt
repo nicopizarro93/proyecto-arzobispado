@@ -26,6 +26,7 @@ object Rutas {
     const val EDITAR_FICHA = "editar-ficha"
     const val GUIAS = "guias"
     const val GUIA_DISPONIBILIDAD = "guia/{guiaId}"
+    const val EDITAR_VISITA = "editar-visita/{visitaId}"
 
     // Arman la ruta con el id, por ejemplo "ficha/3" o "evento/8"
     fun ficha(recintoId: Long) = "ficha/$recintoId"
@@ -35,4 +36,5 @@ object Rutas {
     fun planificarRuta(rutaId: Long) = "planificar-ruta/$rutaId"
     fun editarEvento(eventoId: Long) = "editar-evento/$eventoId"
     fun guiaDisponibilidad(guiaId: Long) = "guia/$guiaId"
+    fun editarVisita(visitaId: Long) = "editar-visita/$visitaId"
 }

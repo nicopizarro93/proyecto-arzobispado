@@ -7,19 +7,21 @@ import androidx.room3.RoomDatabase
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import cl.duoc.aurasacrapp.dao.ComunaDao
 import cl.duoc.aurasacrapp.dao.EventoDao
+import cl.duoc.aurasacrapp.dao.FavoritoDao
 import cl.duoc.aurasacrapp.dao.RecintoDao
 import cl.duoc.aurasacrapp.dao.UsuarioDao
 import cl.duoc.aurasacrapp.dao.VisitaDao
 import cl.duoc.aurasacrapp.model.Comuna
 import cl.duoc.aurasacrapp.model.Evento
+import cl.duoc.aurasacrapp.model.Favorito
 import cl.duoc.aurasacrapp.model.Recinto
 import cl.duoc.aurasacrapp.model.Usuario
 import cl.duoc.aurasacrapp.model.Visita
 import kotlinx.coroutines.Dispatchers
 
 @Database(
-    entities = [Comuna::class, Recinto::class, Usuario::class, Visita::class, Evento::class],
-    version = 6,
+    entities = [Comuna::class, Recinto::class, Usuario::class, Visita::class, Evento::class, Favorito::class],
+    version = 7,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -29,6 +31,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun usuarioDao(): UsuarioDao
     abstract fun visitaDao(): VisitaDao
     abstract fun eventoDao(): EventoDao
+    abstract fun favoritoDao(): FavoritoDao
 
     companion object {
         @Volatile

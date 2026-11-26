@@ -1,6 +1,7 @@
 package cl.duoc.aurasacrapp.view
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -28,6 +29,7 @@ import cl.duoc.aurasacrapp.viewmodel.VisitasViewModel
 @Composable
 fun VisitasScreen(
     onAbrirRecinto: (Long) -> Unit,
+    onEditarVisita: (Long) -> Unit,
     viewModel: VisitasViewModel = viewModel()
 ) {
     val estado by viewModel.uiState.collectAsState()
@@ -74,12 +76,16 @@ fun VisitasScreen(
                         color = MaterialTheme.colorScheme.secondary
                     )
                 }
-                // Solo se puede cancelar una visita que todavía está agendada
-                    if (visita.estado == EstadoVisita.AGENDADA) {
-                        OutlinedButton(onClick = { viewModel.cancelar(visita.id) }) {
-                            Text("Cancelar visita")
-                        }
+                // Solo se puede editar o cancelar una visita que todavía está agendada
+                if (visita.estado == EstadoVisita.AGENDADA) {
+                    Row {
+                        OutlinedButton(onClick = { onEditarVisita(visita.id) }) { Text("Editar") }
+                        OutlinedButton(
+                            onClick = { viewModel.cancelar(visita.id) },
+                            modifier = Modifier.padding(start = 8.dp)
+                        ) { Text("Cancelar visita") }
                     }
+                }
                 }
             }
 

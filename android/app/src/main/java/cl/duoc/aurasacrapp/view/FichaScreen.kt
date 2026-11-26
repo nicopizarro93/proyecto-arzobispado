@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -50,6 +51,11 @@ fun FichaScreen(
             Text("Tipo: ${recinto.tipoRecinto.etiqueta()}")
             Text("Dirección: ${recinto.direccion}")
             Text("Estado: ${recinto.estadoApertura.etiqueta()}")
+        }
+
+        // Favoritos: se guardan en el teléfono (Room), sin necesidad de conexión
+        OutlinedButton(onClick = { viewModel.alternarFavorito() }, modifier = Modifier.fillMaxWidth()) {
+            Text(if (estado.esFavorito) "★ Quitar de favoritos" else "☆ Agregar a favoritos")
         }
 
         Seccion(titulo = "Horario") {
