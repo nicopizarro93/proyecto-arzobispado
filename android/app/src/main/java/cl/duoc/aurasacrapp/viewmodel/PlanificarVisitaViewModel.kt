@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import cl.duoc.aurasacrapp.database.AppDatabase
 import cl.duoc.aurasacrapp.model.Rol
 import cl.duoc.aurasacrapp.remote.mensajeDeError
+import cl.duoc.aurasacrapp.repository.GuiaRepository
 import cl.duoc.aurasacrapp.repository.SesionRepository
 import cl.duoc.aurasacrapp.repository.VisitaRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,7 +32,10 @@ data class PlanificarUiState(
     val guardando: Boolean = false,
     val error: String? = null,                       // error del servidor
     val visitaAgendada: Boolean = false,
-    val esDocente: Boolean = false                   // el docente debe indicar el curso
+    val esDocente: Boolean = false,                  // el docente debe indicar el curso
+    val solicitarGuia: Boolean = false,              // ¿Necesito un guía?
+    val recintosGuia: Set<Long> = emptySet(),        // en una ruta, los recintos donde se pide guía
+    val avisoGuia: String? = null                    // la visita quedó agendada pero falló el guía
 )
 
 // La ruta "planificar/{recintoId}" o "planificar-ruta/{rutaId}" trae el destino;
@@ -45,6 +49,7 @@ class PlanificarVisitaViewModel(
     private val rutaId: Long? = savedStateHandle.get<Long>("rutaId")
     private val db = AppDatabase.getDatabase(application)
     private val repositorio = VisitaRepository(db.visitaDao(), db.recintoDao())
+    private val guiaRepositorio = GuiaRepository()
 
     private val _uiState = MutableStateFlow(
         PlanificarUiState(esDocente = SesionRepository.usuario.value?.rol == Rol.DOCENTE)
@@ -56,6 +61,14 @@ class PlanificarVisitaViewModel(
     fun onCursoChange(valor: String) = _uiState.update { it.copy(curso = valor, errores = it.errores - "curso") }
     fun onObservacionesChange(valor: String) =
         _uiState.update { it.copy(observaciones = valor, errores = it.errores - "observaciones") }
+
+    fun onSolicitarGuiaChange(valor: Boolean) = _uiState.update { it.copy(solicitarGuia = valor, errores = it.errores - "guia") }
+
+    // En una visita a una ruta se elige en qué recintos se necesita guía
+    fun alternarRecintoGuia(recintoId: Long) = _uiState.update {
+        val nuevos = if (recintoId in it.recintosGuia) it.recintosGuia - recintoId else it.recintosGuia + recintoId
+        it.copy(recintosGuia = nuevos, errores = it.errores - "guia")
+    }
 
     fun onPersonasChange(valor: Int) = _uiState.update { it.copy(personas = valor.coerceIn(1, MAX_PERSONAS)) }
 
@@ -87,6 +100,10 @@ class PlanificarVisitaViewModel(
         if (estado.observaciones.trim().length > MAX_OBSERVACIONES) {
             errores["observaciones"] = "Máximo $MAX_OBSERVACIONES caracteres"
         }
+        // HU-23: si pide guía en una ruta, debe elegir al menos un recinto
+        if (estado.solicitarGuia && rutaId != null && estado.recintosGuia.isEmpty()) {
+            errores["guia"] = "Elige en qué recintos de la ruta necesitas un guía"
+        }
         if (errores.isNotEmpty() || inicio == null) {
             _uiState.update { it.copy(errores = errores, error = null) }
             return
@@ -95,7 +112,7 @@ class PlanificarVisitaViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(guardando = true, error = null) }
             try {
-                repositorio.agendar(
+                val visitaId = repositorio.agendar(
                     recintoId = recintoId,
                     rutaId = rutaId,
                     inicio = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(inicio),
@@ -103,7 +120,18 @@ class PlanificarVisitaViewModel(
                     nivelCurso = if (esDocente) curso else null,
                     observaciones = estado.observaciones.trim().ifEmpty { null }
                 )
-                _uiState.update { it.copy(guardando = false, visitaAgendada = true) }
+                // Con la visita ya creada se pide el guía (un pedido por recinto). Si falla, la visita
+                // igual queda agendada: se avisa y no se vuelve a crear
+                var aviso: String? = null
+                val destinos = if (recintoId != null) listOf(recintoId) else estado.recintosGuia.toList()
+                if (estado.solicitarGuia) {
+                    try {
+                        destinos.forEach { guiaRepositorio.solicitarGuia(visitaId, it) }
+                    } catch (e: Exception) {
+                        aviso = "La visita quedó agendada, pero no se pudo pedir el guía: " + mensajeDeError(e)
+                    }
+                }
+                _uiState.update { it.copy(guardando = false, visitaAgendada = true, avisoGuia = aviso) }
             } catch (e: Exception) {
                 _uiState.update { it.copy(guardando = false, error = mensajeDeError(e)) }
             }

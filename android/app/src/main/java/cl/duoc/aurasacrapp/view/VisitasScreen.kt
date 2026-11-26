@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
+import cl.duoc.aurasacrapp.model.EstadoSolicitud
 import cl.duoc.aurasacrapp.model.EstadoVisita
 import cl.duoc.aurasacrapp.util.formatearFecha
 import cl.duoc.aurasacrapp.view.componentes.Encabezado
@@ -61,7 +62,19 @@ fun VisitasScreen(
                             (visita.observaciones?.let { "\n$it" } ?: ""),
                         onClick = visita.recintoId?.let { id -> { onAbrirRecinto(id) } }
                     )
-                    // Solo se puede cancelar una visita que todavía está agendada
+                    // Estado de los guías pedidos para esta visita (HU-24)
+                estado.solicitudes.filter { it.visitaId == visita.id }.forEach { solicitud ->
+                    Text(
+                        text = "Guía en ${solicitud.recinto}: " + when (solicitud.estado) {
+                            EstadoSolicitud.PENDIENTE -> "pendiente"
+                            EstadoSolicitud.ASIGNADA -> "asignado (${solicitud.guia})"
+                            EstadoSolicitud.RECHAZADA -> "rechazado: ${solicitud.motivoRechazo}"
+                            EstadoSolicitud.CANCELADA -> "cancelado"
+                        },
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                }
+                // Solo se puede cancelar una visita que todavía está agendada
                     if (visita.estado == EstadoVisita.AGENDADA) {
                         OutlinedButton(onClick = { viewModel.cancelar(visita.id) }) {
                             Text("Cancelar visita")

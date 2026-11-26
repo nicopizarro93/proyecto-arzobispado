@@ -40,7 +40,7 @@ class VisitaRepository(
     // ---- Agendadas (backend) ----
 
     // "inicio" va en formato ISO, por ejemplo "2026-12-05T10:30:00"
-    // Se agenda a un recinto o a una ruta: uno de los dos ids va null
+    // Se agenda a un recinto o a una ruta: uno de los dos ids va null. Devuelve el id de la visita creada.
     suspend fun agendar(
         recintoId: Long?,
         rutaId: Long?,
@@ -48,8 +48,8 @@ class VisitaRepository(
         cantidadPersonas: Int,
         nivelCurso: String?,
         observaciones: String?
-    ) {
-        api.agendar(
+    ): Long {
+        return api.agendar(
             VisitaRequest(
                 idRecinto = recintoId,
                 idRuta = rutaId,
@@ -58,7 +58,7 @@ class VisitaRepository(
                 nivelCurso = nivelCurso,
                 observaciones = observaciones
             )
-        )
+        ).id
     }
 
     suspend fun agendadas(): List<VisitaAgendada> = api.misVisitas().map { it.aModelo() }

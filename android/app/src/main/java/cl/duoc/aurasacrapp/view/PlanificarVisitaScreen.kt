@@ -1,5 +1,6 @@
 package cl.duoc.aurasacrapp.view
 
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,11 +18,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -53,13 +52,10 @@ fun PlanificarVisitaScreen(
         onVolver = onVolver,
         onGuardar = onGuardar,
         formulario = formulario,
-        puedeSolicitarGuia = estado.guias.isNotEmpty(),
+        opcionesGuia = {},
         informacion = {
             Seccion(titulo = estado.recinto?.nombreOficial ?: "Recinto") {
                 HorarioSemana(horarios = estado.horarios)
-                estado.guias.forEach { guia ->
-                    Text("Guía: ${guia.nombre} ${guia.apellido} (${guia.disponibilidad.joinToString(", ")})")
-                }
             }
         }
     )
@@ -75,6 +71,7 @@ fun PlanificarRutaScreen(
     formulario: PlanificarVisitaViewModel = viewModel()
 ) {
     val estado by viewModel.uiState.collectAsState()
+    val datosFormulario by formulario.uiState.collectAsState()
 
     FormularioVisita(
         tituloVisitante = "Planificar visita a una ruta",
@@ -82,7 +79,22 @@ fun PlanificarRutaScreen(
         onVolver = onVolver,
         onGuardar = onGuardar,
         formulario = formulario,
-        puedeSolicitarGuia = false,
+        opcionesGuia = {
+            val paradas = estado.detalle?.ruta?.paradas.orEmpty()
+            Text("¿En qué recintos necesitas un guía?")
+            paradas.forEach { parada ->
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(
+                        checked = parada.recintoId in datosFormulario.recintosGuia,
+                        onCheckedChange = { formulario.alternarRecintoGuia(parada.recintoId) }
+                    )
+                    Text(
+                        parada.nombreRecinto,
+                        modifier = Modifier.clickable { formulario.alternarRecintoGuia(parada.recintoId) }
+                    )
+                }
+            }
+        },
         informacion = {
             val detalle = estado.detalle
             Seccion(titulo = detalle?.ruta?.nombre ?: "Ruta") {
@@ -105,16 +117,20 @@ private fun FormularioVisita(
     onVolver: () -> Unit,
     onGuardar: () -> Unit,
     formulario: PlanificarVisitaViewModel,
-    puedeSolicitarGuia: Boolean,
+    opcionesGuia: @Composable () -> Unit,
     informacion: @Composable () -> Unit
 ) {
     val datos by formulario.uiState.collectAsState()
     val esDocente = datos.esDocente
-    var solicitarGuia by rememberSaveable { mutableStateOf(false) }
+    val context = LocalContext.current
 
     // Cuando la visita queda agendada, se avisa una sola vez
     LaunchedEffect(datos.visitaAgendada) {
-        if (datos.visitaAgendada) onGuardar()
+        if (datos.visitaAgendada) {
+            // Si el guía no se pudo pedir, la visita igual quedó agendada: se avisa
+            datos.avisoGuia?.let { Toast.makeText(context, it, Toast.LENGTH_LONG).show() }
+            onGuardar()
+        }
     }
 
     Column(
@@ -149,13 +165,18 @@ private fun FormularioVisita(
                 valor = datos.curso, onValorChange = formulario::onCursoChange,
                 etiqueta = "Nivel o curso (ej. 3° básico B)", error = datos.errores["curso"]
             )
-            if (puedeSolicitarGuia) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(checked = solicitarGuia, onCheckedChange = { solicitarGuia = it })
-                    Text("Solicitar guía para el grupo", modifier = Modifier.clickable { solicitarGuia = !solicitarGuia })
-                }
-            }
         }
+
+        // HU-23: visitantes y docentes pueden pedir un guía voluntario
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Checkbox(checked = datos.solicitarGuia, onCheckedChange = formulario::onSolicitarGuiaChange)
+            Text(
+                "Necesito un guía",
+                modifier = Modifier.clickable { formulario.onSolicitarGuiaChange(!datos.solicitarGuia) }
+            )
+        }
+        if (datos.solicitarGuia) opcionesGuia()
+        datos.errores["guia"]?.let { Text(text = it, color = MaterialTheme.colorScheme.error) }
 
         CampoTexto(
             valor = datos.observaciones, onValorChange = formulario::onObservacionesChange,
